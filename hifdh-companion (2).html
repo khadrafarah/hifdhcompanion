@@ -1,0 +1,2092 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hifdh Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0F2C26; --bg2:#123A32; --bg3:#0B221D;
+  --panel:#F6EFDD; --panel2:#EDE3C8; --panel-line:#DBCBA0;
+  --ink:#1E241F; --ink-soft:#4C554C;
+  --gold:#C6A45C; --gold-soft:#E4CE93; --gold-line:rgba(198,164,92,.35);
+  --green:#3F8F5F; --green-bg:#E4F1E7;
+  --amber:#C7962D; --amber-bg:#FBF0DA;
+  --clay:#C0392B; --clay-bg:#F8DCD6;
+  --grey:#8B9187; --grey-bg:#EDEEE9;
+  --white:#FBF8F0;
+  --radius:14px;
+  --shadow:0 8px 24px rgba(0,0,0,.18);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--white);font-family:'Inter',sans-serif;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(circle at 10% 0%, rgba(198,164,92,.10), transparent 40%),
+  radial-gradient(circle at 90% 100%, rgba(198,164,92,.08), transparent 45%);
+  pointer-events:none;z-index:0;}
+#app{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:20px 16px 90px;}
+header.top{text-align:center;padding:18px 0 14px;}
+header.top .title{font-family:'Amiri',serif;font-weight:700;font-size:30px;color:var(--gold-soft);letter-spacing:.5px;}
+header.top .sub{font-size:12.5px;color:var(--grey);margin-top:4px;text-transform:uppercase;letter-spacing:1.5px;}
+header.top .today{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--gold);margin-top:8px;}
+.rule{height:1px;background:linear-gradient(90deg,transparent,var(--gold-line),transparent);margin:14px 0;}
+nav#tabs{display:flex;gap:6px;background:var(--bg3);border-radius:12px;padding:4px;margin-bottom:18px;overflow-x:auto;}
+nav#tabs button{flex:1;white-space:nowrap;background:none;border:none;color:var(--grey);font-family:'Inter',sans-serif;font-weight:600;font-size:12.5px;padding:9px 8px;border-radius:9px;cursor:pointer;transition:.15s;}
+nav#tabs button.active{background:var(--gold);color:var(--bg3);}
+nav#tabs button:not(.active):hover{color:var(--white);}
+.card{background:var(--panel);color:var(--ink);border-radius:var(--radius);padding:18px;margin-bottom:16px;box-shadow:var(--shadow);border:1px solid var(--panel-line);}
+.card h2{font-family:'Amiri',serif;font-size:19px;margin:0 0 3px;color:var(--ink);}
+.card .desc{font-size:12.5px;color:var(--ink-soft);margin-bottom:12px;}
+.eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:1.4px;color:var(--gold);font-weight:700;margin-bottom:4px;}
+.pillrow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+.pill{background:var(--panel2);border:1px solid var(--panel-line);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;font-family:'IBM Plex Mono',monospace;}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0 4px;}
+.stat{background:var(--panel2);border-radius:10px;padding:10px;text-align:center;}
+.stat .n{font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;color:var(--bg2);}
+.stat .l{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-soft);margin-top:2px;}
+.progressbar{height:8px;background:var(--panel2);border-radius:6px;overflow:hidden;margin:8px 0;}
+.progressbar > div{height:100%;background:var(--green);}
+.pagelist{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+.pagechip{display:flex;align-items:center;gap:6px;background:var(--white);border:1px solid var(--panel-line);border-radius:9px;padding:7px 10px;font-size:12.5px;}
+.pagechip.today{border:2px solid var(--gold);box-shadow:0 0 0 1px var(--gold-soft);padding:6px 9px;}
+.pagechip.done{background:var(--green-bg);border-color:var(--green);}
+.pagechip.band-strong{border-left:4px solid var(--green);}
+.pagechip.band-medium{border-left:4px solid var(--amber);}
+.pagechip.band-weak{border-left:4px solid var(--clay);}
+.pagechip.band-new{border-left:4px solid var(--grey);}
+.pagechip input{accent-color:var(--green);width:15px;height:15px;}
+.pagechip .num{font-family:'IBM Plex Mono',monospace;font-weight:600;}
+.daytag{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--bg2);background:var(--gold-soft);border-radius:5px;padding:2px 6px;}
+.pagechip .sn{color:var(--ink-soft);font-size:11px;}
+.previewchip{background:var(--amber-bg);border:1px dashed var(--amber);border-radius:9px;padding:7px 10px;font-size:12.5px;}
+.pagechip.previewchip input{accent-color:var(--amber);}
+.pagechip.previewchip.done{background:var(--green-bg);border:1px solid var(--green);}
+button.btn{font-family:'Inter',sans-serif;font-weight:700;font-size:13px;border:none;border-radius:9px;padding:10px 16px;cursor:pointer;transition:.15s;}
+button.btn.primary{background:var(--bg2);color:var(--gold-soft);}
+button.btn.primary:disabled{background:var(--grey-bg);color:var(--grey);cursor:not-allowed;}
+button.btn.gold{background:var(--gold);color:var(--bg3);}
+button.btn.ghost{background:transparent;border:1px solid var(--panel-line);color:var(--ink);}
+button.btn.small{padding:6px 11px;font-size:11.5px;}
+button.btn.danger{background:var(--clay);color:var(--white);}
+.revcard{background:var(--white);border:1px solid var(--panel-line);border-radius:11px;padding:12px;margin-bottom:10px;border-left:4px solid var(--grey);}
+.revcard.band-strong{border-left-color:var(--green);}
+.revcard.band-medium{border-left-color:var(--amber);}
+.revcard.band-weak{border-left-color:var(--clay);}
+.revcard.band-new{border-left-color:var(--grey);}
+.revcard .rhead{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.revcard .rhead .num{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:15px;}
+.revcard .rhead .sn{font-size:11.5px;color:var(--ink-soft);}
+.badge{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.3px;}
+.badge.strong{background:var(--green-bg);color:var(--green);}
+.badge.medium{background:var(--amber-bg);color:var(--amber);}
+.badge.weak{background:var(--clay-bg);color:var(--clay);}
+.badge.new{background:var(--grey-bg);color:var(--grey);}
+.badge.gold{background:var(--gold);color:var(--bg3);}
+.rev-actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap;}
+.mistake-form{margin-top:10px;padding-top:10px;border-top:1px dashed var(--panel-line);display:none;}
+.ayah-grid{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.ayah-surah-label{width:100%;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);margin-top:6px;}
+.ayah-btn{min-width:30px;height:30px;padding:0 6px;border-radius:7px;border:1px solid var(--panel-line);background:var(--white);color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:11.5px;cursor:pointer;}
+.ayah-btn.selected{background:var(--clay);border-color:var(--clay);color:#fff;font-weight:700;}
+.mistake-form.open{display:block;}
+.mistake-form .row{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;}
+.mistake-form select,.mistake-form input,.mistake-form textarea{font-family:'Inter',sans-serif;font-size:12.5px;padding:7px 8px;border-radius:7px;border:1px solid var(--panel-line);background:var(--panel);flex:1;min-width:90px;}
+.mistake-log-item{font-size:10px;background:var(--clay-bg);color:var(--clay);border-radius:7px;padding:4px 9px;margin-top:5px;display:flex;align-items:center;gap:6px;}
+.mistake-log-item.fixed{background:var(--green-bg);color:var(--green);}
+.mistake-log-item.fixed span{text-decoration:line-through;opacity:.75;}
+.mistake-log-item .fixcheck{accent-color:var(--green);width:13px;height:13px;flex-shrink:0;cursor:pointer;}
+.mistake-log-item span{flex:1;text-align:center;}
+.mistake-log-item .spacer{visibility:hidden;pointer-events:none;}
+.mistake-summary{margin-top:8px;}
+.taboftext{font-size:12px;color:var(--ink-soft);}
+table.strengthtable{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px;}
+table.strengthtable th{text-align:left;font-size:10.5px;text-transform:uppercase;color:var(--ink-soft);padding:6px 4px;border-bottom:1px solid var(--panel-line);}
+table.strengthtable td{padding:8px 4px;border-bottom:1px solid var(--panel2);vertical-align:middle;}
+table.strengthtable tr:last-child td{border-bottom:none;}
+.arname{font-family:'Amiri',serif;font-size:16px;}
+.sortbar{display:flex;gap:6px;margin-bottom:6px;}
+.grid604{display:flex;flex-direction:column;gap:3px;margin-top:10px;}
+.juzrow{display:flex;align-items:center;gap:2px;}
+.juzrow .jl{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-soft);width:22px;flex-shrink:0;}
+.juzrow .cells{display:flex;flex-wrap:nowrap;gap:2px;overflow-x:auto;padding-right:2px;}
+.cell{width:9px;height:9px;border-radius:2px;background:var(--grey-bg);flex-shrink:0;cursor:pointer;}
+.cell.strong{background:var(--green);}
+.cell.medium{background:var(--amber);}
+.cell.weak{background:var(--clay);}
+.cell.memnew{background:var(--grey);}
+.cell.target{box-shadow:inset 0 0 0 1.5px var(--bg2);}
+.cell.prep{box-shadow:inset 0 0 0 1.5px var(--amber);}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:var(--ink-soft);}
+.legend .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:middle;}
+.settingsrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--panel2);}
+.settingsrow:last-child{border-bottom:none;}
+.settingsrow label{font-size:13px;font-weight:600;}
+.settingsrow .h{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+.settingsrow input[type=number]{width:64px;padding:7px;border-radius:7px;border:1px solid var(--panel-line);font-family:'IBM Plex Mono',monospace;}
+.modal-overlay{position:fixed;inset:0;background:rgba(11,34,29,.82);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.hidden{display:none;}
+.modal{background:var(--panel);color:var(--ink);border-radius:16px;padding:22px;max-width:480px;width:100%;max-height:86vh;overflow:auto;}
+.modal h2{font-family:'Amiri',serif;color:var(--ink);}
+.juztoggle{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:12px 0;}
+.juztoggle button{padding:8px 4px;border-radius:8px;border:1px solid var(--panel-line);background:var(--white);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;}
+.juztoggle button.on{background:var(--green);color:#fff;border-color:var(--green);}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--bg3);color:var(--gold-soft);padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s;z-index:60;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+.emptynote{font-size:12.5px;color:var(--ink-soft);font-style:italic;}
+.iconbtn{background:none;border:none;color:var(--ink-soft);cursor:pointer;font-size:14px;}
+.mistake-log-item .iconbtn{color:var(--clay);opacity:.75;flex-shrink:0;font-size:10px;}
+.mistake-log-item .iconbtn:hover{opacity:1;}
+@media(max-width:420px){.statgrid{grid-template-columns:repeat(3,1fr);}.stat .n{font-size:16px;}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="title">Hifdh Companion</div>
+    <div class="sub">Memorisation &amp; Muraja'ah Tracker</div>
+    <div class="today" id="todayLabel"></div>
+  </header>
+  <nav id="tabs">
+    <button data-tab="home">Home</button>
+    <button data-tab="memorize">Memorise</button>
+    <button data-tab="revise">Muraja'ah</button>
+    <button data-tab="progress">Progress</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+  <main id="tabContent"></main>
+</div>
+<div class="modal-overlay hidden" id="setupModal">
+  <div class="modal" id="setupModalInner"></div>
+</div>
+<div class="modal-overlay hidden" id="chooseTodayModal">
+  <div class="modal" id="chooseTodayModalInner"></div>
+</div>
+<div class="modal-overlay hidden" id="mistakesModal">
+  <div class="modal" id="mistakesModalInner"></div>
+</div>
+<div id="toast"></div>
+<script>
+/* ============ REFERENCE DATA ============ */
+const TOTAL_PAGES = 604;
+const JUZ_START = [1,22,42,62,82,102,121,142,162,182,201,222,242,262,282,302,322,342,362,382,402,422,442,462,482,502,522,542,562,582];
+const SURAHS = [
+[1,"Al-Fatihah","الفاتحة",1,7],[2,"Al-Baqarah","البقرة",2,286],[3,"Aal-Imran","آل عمران",50,200],
+[4,"An-Nisa","النساء",77,176],[5,"Al-Ma'idah","المائدة",106,120],[6,"Al-An'am","الأنعام",128,165],
+[7,"Al-A'raf","الأعراف",151,206],[8,"Al-Anfal","الأنفال",177,75],[9,"At-Tawbah","التوبة",187,129],
+[10,"Yunus","يونس",208,109],[11,"Hud","هود",221,123],[12,"Yusuf","يوسف",235,111],
+[13,"Ar-Ra'd","الرعد",249,43],[14,"Ibrahim","إبراهيم",255,52],[15,"Al-Hijr","الحجر",262,99],
+[16,"An-Nahl","النحل",267,128],[17,"Al-Isra","الإسراء",282,111],[18,"Al-Kahf","الكهف",293,110],
+[19,"Maryam","مريم",305,98],[20,"Ta-Ha","طه",312,135],[21,"Al-Anbiya","الأنبياء",322,112],
+[22,"Al-Hajj","الحج",332,78],[23,"Al-Mu'minun","المؤمنون",342,118],[24,"An-Nur","النور",350,64],
+[25,"Al-Furqan","الفرقان",359,77],[26,"Ash-Shu'ara","الشعراء",367,227],[27,"An-Naml","النمل",377,93],
+[28,"Al-Qasas","القصص",385,88],[29,"Al-Ankabut","العنكبوت",396,69],[30,"Ar-Rum","الروم",404,60],
+[31,"Luqman","لقمان",411,34],[32,"As-Sajdah","السجدة",415,30],[33,"Al-Ahzab","الأحزاب",418,73],
+[34,"Saba","سبأ",428,54],[35,"Fatir","فاطر",434,45],[36,"Ya-Sin","يس",440,83],
+[37,"As-Saffat","الصافات",446,182],[38,"Sad","ص",453,88],[39,"Az-Zumar","الزمر",458,75],
+[40,"Ghafir","غافر",467,85],[41,"Fussilat","فصلت",477,54],[42,"Ash-Shura","الشورى",483,53],
+[43,"Az-Zukhruf","الزخرف",489,89],[44,"Ad-Dukhan","الدخان",496,59],[45,"Al-Jathiyah","الجاثية",499,37],
+[46,"Al-Ahqaf","الأحقاف",502,35],[47,"Muhammad","محمد",507,38],[48,"Al-Fath","الفتح",511,29],
+[49,"Al-Hujurat","الحجرات",515,18],[50,"Qaf","ق",518,45],[51,"Adh-Dhariyat","الذاريات",520,60],
+[52,"At-Tur","الطور",523,49],[53,"An-Najm","النجم",526,62],[54,"Al-Qamar","القمر",528,55],
+[55,"Ar-Rahman","الرحمن",531,78],[56,"Al-Waqi'ah","الواقعة",534,96],[57,"Al-Hadid","الحديد",537,29],
+[58,"Al-Mujadila","المجادلة",542,22],[59,"Al-Hashr","الحشر",545,24],[60,"Al-Mumtahanah","الممتحنة",549,13],
+[61,"As-Saff","الصف",551,14],[62,"Al-Jumu'ah","الجمعة",553,11],[63,"Al-Munafiqun","المنافقون",554,11],
+[64,"At-Taghabun","التغابن",556,18],[65,"At-Talaq","الطلاق",558,12],[66,"At-Tahrim","التحريم",560,12],
+[67,"Al-Mulk","الملك",562,30],[68,"Al-Qalam","القلم",564,52],[69,"Al-Haqqah","الحاقة",566,52],
+[70,"Al-Ma'arij","المعارج",568,44],[71,"Nuh","نوح",570,28],[72,"Al-Jinn","الجن",572,28],
+[73,"Al-Muzzammil","المزمل",574,20],[74,"Al-Muddaththir","المدثر",575,56],[75,"Al-Qiyamah","القيامة",577,40],
+[76,"Al-Insan","الإنسان",578,31],[77,"Al-Mursalat","المرسلات",580,50],[78,"An-Naba","النبأ",582,40],
+[79,"An-Nazi'at","النازعات",583,46],[80,"Abasa","عبس",585,42],[81,"At-Takwir","التكوير",586,29],
+[82,"Al-Infitar","الانفطار",587,19],[83,"Al-Mutaffifin","المطففين",587,36],[84,"Al-Inshiqaq","الانشقاق",589,25],
+[85,"Al-Buruj","البروج",590,22],[86,"At-Tariq","الطارق",591,17],[87,"Al-A'la","الأعلى",591,19],
+[88,"Al-Ghashiyah","الغاشية",592,26],[89,"Al-Fajr","الفجر",593,30],[90,"Al-Balad","البلد",594,20],
+[91,"Ash-Shams","الشمس",595,15],[92,"Al-Layl","الليل",595,21],[93,"Ad-Duha","الضحى",596,11],
+[94,"Ash-Sharh","الشرح",596,8],[95,"At-Tin","التين",597,8],[96,"Al-Alaq","العلق",597,19],
+[97,"Al-Qadr","القدر",598,5],[98,"Al-Bayyinah","البينة",598,8],[99,"Az-Zalzalah","الزلزلة",599,8],
+[100,"Al-Adiyat","العاديات",599,11],[101,"Al-Qari'ah","القارعة",600,11],[102,"At-Takathur","التكاثر",600,8],
+[103,"Al-Asr","العصر",601,3],[104,"Al-Humazah","الهمزة",601,9],[105,"Al-Fil","الفيل",601,5],
+[106,"Quraysh","قريش",602,4],[107,"Al-Ma'un","الماعون",602,7],[108,"Al-Kawthar","الكوثر",602,3],
+[109,"Al-Kafirun","الكافرون",603,6],[110,"An-Nasr","النصر",603,3],[111,"Al-Masad","المسد",603,5],
+[112,"Al-Ikhlas","الإخلاص",604,4],[113,"Al-Falaq","الفلق",604,5],[114,"An-Nas","الناس",604,6]
+];
+
+function juzOf(page){let j=1;for(let i=0;i<30;i++){if(page>=JUZ_START[i])j=i+1;}return j;}
+function surahPageRange(num){
+  const idx=SURAHS.findIndex(s=>s[0]===num);
+  if(idx===-1)return null;
+  const start=SURAHS[idx][3];
+  const end=idx+1<SURAHS.length?SURAHS[idx+1][3]-1:TOTAL_PAGES;
+  return[start,end];
+}
+const PAGE_AYAH_RANGES_RAW="1:1-1:7|2:1-2:5|2:6-2:16|2:17-2:24|2:25-2:29|2:30-2:37|2:38-2:48|2:49-2:57|2:58-2:61|2:62-2:69|2:70-2:76|2:77-2:83|2:84-2:88|2:89-2:93|2:94-2:101|2:102-2:105|2:106-2:112|2:113-2:119|2:120-2:126|2:127-2:134|2:135-2:141|2:142-2:145|2:146-2:153|2:154-2:163|2:164-2:169|2:170-2:176|2:177-2:181|2:182-2:186|2:187-2:190|2:191-2:196|2:197-2:202|2:203-2:210|2:211-2:215|2:216-2:219|2:220-2:224|2:225-2:230|2:231-2:233|2:234-2:237|2:238-2:245|2:246-2:248|2:249-2:252|2:253-2:256|2:257-2:259|2:260-2:264|2:265-2:269|2:270-2:274|2:275-2:281|2:282-2:282|2:283-2:286|3:1-3:9|3:10-3:15|3:16-3:22|3:23-3:29|3:30-3:37|3:38-3:45|3:46-3:52|3:53-3:61|3:62-3:70|3:71-3:77|3:78-3:83|3:84-3:91|3:92-3:100|3:101-3:108|3:109-3:115|3:116-3:121|3:122-3:132|3:133-3:140|3:141-3:148|3:149-3:153|3:154-3:157|3:158-3:165|3:166-3:173|3:174-3:180|3:181-3:186|3:187-3:194|3:195-3:200|4:1-4:6|4:7-4:11|4:12-4:14|4:15-4:19|4:20-4:23|4:24-4:26|4:27-4:33|4:34-4:37|4:38-4:44|4:45-4:51|4:52-4:59|4:60-4:65|4:66-4:74|4:75-4:79|4:80-4:86|4:87-4:91|4:92-4:94|4:95-4:101|4:102-4:105|4:106-4:113|4:114-4:121|4:122-4:127|4:128-4:134|4:135-4:140|4:141-4:147|4:148-4:154|4:155-4:162|4:163-4:170|4:171-4:175|4:176-5:2|5:3-5:5|5:6-5:9|5:10-5:13|5:14-5:17|5:18-5:23|5:24-5:31|5:32-5:36|5:37-5:41|5:42-5:45|5:46-5:50|5:51-5:57|5:58-5:64|5:65-5:70|5:71-5:76|5:77-5:82|5:83-5:89|5:90-5:95|5:96-5:103|5:104-5:108|5:109-5:113|5:114-5:120|6:1-6:8|6:9-6:18|6:19-6:27|6:28-6:35|6:36-6:44|6:45-6:52|6:53-6:59|6:60-6:68|6:69-6:73|6:74-6:81|6:82-6:90|6:91-6:94|6:95-6:101|6:102-6:110|6:111-6:118|6:119-6:124|6:125-6:131|6:132-6:137|6:138-6:142|6:143-6:146|6:147-6:151|6:152-6:157|6:158-6:165|7:1-7:11|7:12-7:22|7:23-7:30|7:31-7:37|7:38-7:43|7:44-7:51|7:52-7:57|7:58-7:67|7:68-7:73|7:74-7:81|7:82-7:87|7:88-7:95|7:96-7:104|7:105-7:120|7:121-7:130|7:131-7:137|7:138-7:143|7:144-7:149|7:150-7:155|7:156-7:159|7:160-7:163|7:164-7:170|7:171-7:178|7:179-7:187|7:188-7:195|7:196-7:206|8:1-8:8|8:9-8:16|8:17-8:25|8:26-8:33|8:34-8:40|8:41-8:45|8:46-8:52|8:53-8:61|8:62-8:69|8:70-8:75|9:1-9:6|9:7-9:13|9:14-9:20|9:21-9:26|9:27-9:31|9:32-9:36|9:37-9:40|9:41-9:47|9:48-9:54|9:55-9:61|9:62-9:68|9:69-9:72|9:73-9:79|9:80-9:86|9:87-9:93|9:94-9:99|9:100-9:106|9:107-9:111|9:112-9:117|9:118-9:122|9:123-9:129|10:1-10:6|10:7-10:14|10:15-10:20|10:21-10:25|10:26-10:33|10:34-10:42|10:43-10:53|10:54-10:61|10:62-10:70|10:71-10:78|10:79-10:88|10:89-10:97|10:98-10:106|10:107-11:5|11:6-11:12|11:13-11:19|11:20-11:28|11:29-11:37|11:38-11:45|11:46-11:53|11:54-11:62|11:63-11:71|11:72-11:81|11:82-11:88|11:89-11:97|11:98-11:108|11:109-11:117|11:118-12:4|12:5-12:14|12:15-12:22|12:23-12:30|12:31-12:37|12:38-12:43|12:44-12:52|12:53-12:63|12:64-12:69|12:70-12:78|12:79-12:86|12:87-12:95|12:96-12:103|12:104-12:111|13:1-13:5|13:6-13:13|13:14-13:18|13:19-13:28|13:29-13:34|13:35-13:42|13:43-14:5|14:6-14:10|14:11-14:18|14:19-14:24|14:25-14:33|14:34-14:42|14:43-14:52|15:1-15:15|15:16-15:31|15:32-15:51|15:52-15:70|15:71-15:90|15:91-16:6|16:7-16:14|16:15-16:26|16:27-16:34|16:35-16:42|16:43-16:54|16:55-16:64|16:65-16:72|16:73-16:79|16:80-16:87|16:88-16:93|16:94-16:102|16:103-16:110|16:111-16:118|16:119-16:128|17:1-17:7|17:8-17:17|17:18-17:27|17:28-17:38|17:39-17:49|17:50-17:58|17:59-17:66|17:67-17:75|17:76-17:86|17:87-17:96|17:97-17:104|17:105-18:4|18:5-18:15|18:16-18:20|18:21-18:27|18:28-18:34|18:35-18:45|18:46-18:53|18:54-18:61|18:62-18:74|18:75-18:83|18:84-18:97|18:98-18:110|19:1-19:11|19:12-19:25|19:26-19:38|19:39-19:51|19:52-19:64|19:65-19:76|19:77-19:95|19:96-20:12|20:13-20:37|20:38-20:51|20:52-20:64|20:65-20:76|20:77-20:87|20:88-20:98|20:99-20:113|20:114-20:125|20:126-20:135|21:1-21:10|21:11-21:24|21:25-21:35|21:36-21:44|21:45-21:57|21:58-21:72|21:73-21:81|21:82-21:90|21:91-21:101|21:102-21:112|22:1-22:5|22:6-22:15|22:16-22:23|22:24-22:30|22:31-22:38|22:39-22:46|22:47-22:55|22:56-22:64|22:65-22:72|22:73-22:78|23:1-23:17|23:18-23:27|23:28-23:42|23:43-23:59|23:60-23:74|23:75-23:89|23:90-23:104|23:105-23:118|24:1-24:10|24:11-24:20|24:21-24:27|24:28-24:31|24:32-24:36|24:37-24:43|24:44-24:53|24:54-24:58|24:59-24:61|24:62-25:2|25:3-25:11|25:12-25:20|25:21-25:32|25:33-25:43|25:44-25:55|25:56-25:67|25:68-25:77|26:1-26:19|26:20-26:39|26:40-26:60|26:61-26:83|26:84-26:111|26:112-26:136|26:137-26:159|26:160-26:183|26:184-26:206|26:207-26:227|27:1-27:13|27:14-27:22|27:23-27:35|27:36-27:44|27:45-27:55|27:56-27:63|27:64-27:76|27:77-27:88|27:89-28:5|28:6-28:13|28:14-28:21|28:22-28:28|28:29-28:35|28:36-28:43|28:44-28:50|28:51-28:59|28:60-28:70|28:71-28:77|28:78-28:84|28:85-29:6|29:7-29:14|29:15-29:23|29:24-29:30|29:31-29:38|29:39-29:45|29:46-29:52|29:53-29:63|29:64-30:5|30:6-30:15|30:16-30:24|30:25-30:32|30:33-30:41|30:42-30:50|30:51-30:60|31:1-31:11|31:12-31:19|31:20-31:28|31:29-31:34|32:1-32:11|32:12-32:20|32:21-32:30|33:1-33:6|33:7-33:15|33:16-33:22|33:23-33:30|33:31-33:35|33:36-33:43|33:44-33:50|33:51-33:54|33:55-33:62|33:63-33:73|34:1-34:7|34:8-34:14|34:15-34:22|34:23-34:31|34:32-34:39|34:40-34:48|34:49-35:3|35:4-35:11|35:12-35:18|35:19-35:30|35:31-35:38|35:39-35:44|35:45-36:12|36:13-36:27|36:28-36:40|36:41-36:54|36:55-36:70|36:71-36:83|37:1-37:24|37:25-37:51|37:52-37:76|37:77-37:102|37:103-37:126|37:127-37:153|37:154-37:182|38:1-38:16|38:17-38:26|38:27-38:42|38:43-38:61|38:62-38:83|38:84-39:5|39:6-39:10|39:11-39:21|39:22-39:31|39:32-39:40|39:41-39:47|39:48-39:56|39:57-39:67|39:68-39:74|39:75-40:7|40:8-40:16|40:17-40:25|40:26-40:33|40:34-40:40|40:41-40:49|40:50-40:58|40:59-40:66|40:67-40:77|40:78-40:85|41:1-41:11|41:12-41:20|41:21-41:29|41:30-41:38|41:39-41:46|41:47-41:54|42:1-42:10|42:11-42:15|42:16-42:22|42:23-42:31|42:32-42:44|42:45-42:51|42:52-43:10|43:11-43:22|43:23-43:33|43:34-43:47|43:48-43:60|43:61-43:73|43:74-43:89|44:1-44:18|44:19-44:39|44:40-44:59|45:1-45:13|45:14-45:22|45:23-45:32|45:33-46:5|46:6-46:14|46:15-46:20|46:21-46:28|46:29-46:35|47:1-47:11|47:12-47:19|47:20-47:29|47:30-47:38|48:1-48:9|48:10-48:15|48:16-48:23|48:24-48:28|48:29-49:4|49:5-49:11|49:12-49:18|50:1-50:15|50:16-50:35|50:36-51:6|51:7-51:30|51:31-51:51|51:52-52:14|52:15-52:31|52:32-52:49|53:1-53:26|53:27-53:44|53:45-54:6|54:7-54:27|54:28-54:49|54:50-55:16|55:17-55:40|55:41-55:67|55:68-56:16|56:17-56:50|56:51-56:76|56:77-57:3|57:4-57:11|57:12-57:18|57:19-57:24|57:25-57:29|58:1-58:6|58:7-58:11|58:12-58:21|58:22-59:3|59:4-59:9|59:10-59:16|59:17-59:24|60:1-60:5|60:6-60:11|60:12-61:5|61:6-61:14|62:1-62:8|62:9-63:4|63:5-63:11|64:1-64:9|64:10-64:18|65:1-65:5|65:6-65:12|66:1-66:7|66:8-66:12|67:1-67:12|67:13-67:26|67:27-68:15|68:16-68:42|68:43-69:8|69:9-69:34|69:35-70:10|70:11-70:39|70:40-71:10|71:11-71:28|72:1-72:13|72:14-72:28|73:1-73:19|73:20-74:17|74:18-74:47|74:48-75:19|75:20-76:5|76:6-76:25|76:26-77:19|77:20-77:50|78:1-78:30|78:31-79:15|79:16-79:46|80:1-80:42|81:1-81:29|82:1-83:6|83:7-83:34|83:35-84:25|85:1-85:22|86:1-87:15|87:16-88:26|89:1-89:23|89:24-90:20|91:1-92:14|92:15-94:8|95:1-96:19|97:1-98:7|98:8-100:9|100:10-102:8|103:1-105:5|106:1-108:3|109:1-111:5|112:1-114:6";
+const PAGE_AYAH_RANGES=PAGE_AYAH_RANGES_RAW.split('|').map(s=>{const[a,b]=s.split('-');const[as,aa]=a.split(':').map(Number);const[bs,ba]=b.split(':').map(Number);return[as,aa,bs,ba];});
+function pageAyahList(page){
+  const range=PAGE_AYAH_RANGES[page-1];
+  if(!range)return[];
+  const[ss,sa,es,ea]=range;
+  const list=[];
+  let s=ss,a=sa;
+  let guard=0;
+  while(guard<400){
+    guard++;
+    const surahRow=SURAHS[s-1];
+    if(!surahRow)break;
+    list.push({surahNum:s,surahName:surahRow[1],ayah:a});
+    if(s===es&&a===ea)break;
+    a++;
+    if(a>surahRow[4]){s++;a=1;}
+  }
+  return list;
+}
+
+function juzRange(j){const start=JUZ_START[j-1];const end=(j<30)?JUZ_START[j]-1:TOTAL_PAGES;return [start,end];}
+function surahOf(page){let s=SURAHS[0];for(const row of SURAHS){if(row[3]<=page)s=row;}return s;}
+function surahRange(num){const s=SURAHS[num-1];const next=SURAHS[num]; const end=next?(next[3]-1===s[3]-1?next[3]:next[3]-1):TOTAL_PAGES; return [s[3], next? (next[3]>s[3]?next[3]-1:next[3]) : TOTAL_PAGES];}
+function surahsOnPage(page){const set=new Map();const active=surahOf(page);set.set(active[0],active);for(const row of SURAHS){if(row[3]===page)set.set(row[0],row);}return Array.from(set.values());}
+function pad3(n){return String(n).padStart(3,'0');}
+
+/* ============ STATE ============ */
+const STORE_KEY='hifdhCompanionState_v1';
+let state=null;
+function defaultState(){
+  return{
+    config:{pagesPerWeek:5,paceMode:'week',pagesPerDay:1,revisionCycleDays:7,pausedCycleDays:14,cycleUnit:'pages',setupDone:false,hifdhPaused:false},
+    pages:{}, // pageNum -> {memorized:true, date:'YYYY-MM-DD', movedToCycle:bool, preppedDate:'YYYY-MM-DD'}
+    currentWeek:{targetPages:[],startDate:todayISO()},
+    prevWeeksHistory:[],
+    cycle:null, // {startDate, days:{1:{base:[],extra:[]},...}, reviewedToday:{}}
+    reviewLog:[], // {page, date, mistakeCount, cycleDay}
+    mistakes:[], // {id, page, surahNum, surahName, ayah, note, date, fixed}
+    ui:{hifdhReviewCollapsed:false,reviseDayCollapsed:{}},
+    baqarahKhatma:null, // {startDate, days:{1:[pages],...}, readPages:{page:date}} — separate 7-day recurring reading goal
+    cycleSeq:0, // increments once per genuine new Muraja'ah cycle
+    sundayExtra:[], // pages with 4+ mistakes, collected here permanently across cycles — only removed by explicitly marking fixed
+    ayahTracking:{}, // key `page|surahNum|ayah` -> {page,surahNum,surahName,ayah,streak,lastCycleSeq,date,note}
+    hifdhAyahTracking:{}, // key `page|surahNum|ayah` -> {page,surahNum,surahName,ayah,streak,lastDate,note} — Hifdh Review pages only, streak = consecutive calendar days
+    activeTab:'home'
+  };
+}
+function todayISO(){const d=new Date();d.setHours(d.getHours()-2);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function formatDateDMY(iso){
+  if(!iso)return '';
+  const d=new Date(iso+'T00:00:00');
+  return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+}
+function daysBetween(iso1,iso2){const a=new Date(iso1+'T00:00:00');const b=new Date(iso2+'T00:00:00');return Math.round((b-a)/86400000);}
+function addDaysISO(iso,n){const d=new Date(iso+'T00:00:00');d.setDate(d.getDate()+n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+const RECENT_MISTAKE_WINDOW_DAYS=30;
+function recentMistakeCount(page){
+  const today=todayISO();
+  return state.mistakes.filter(m=>m.page===page&&daysBetween(m.date,today)<=RECENT_MISTAKE_WINDOW_DAYS).length;
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem(STORE_KEY);
+    if(raw){
+      const parsed=JSON.parse(raw);
+      const d=defaultState();
+      const merged={
+        ...d,...parsed,
+        config:{...d.config,...(parsed.config||{})}
+      };
+      merged.mistakes=(merged.mistakes||[]).map(m=>({fixed:false,...m}));
+      merged.ui=merged.ui||{};
+      merged.ui.hifdhReviewCollapsed=merged.ui.hifdhReviewCollapsed||false;
+      merged.ui.reviseDayCollapsed=merged.ui.reviseDayCollapsed||{};
+      merged.pages=merged.pages||{};
+      Object.keys(merged.pages).forEach(p=>{
+        const pg=merged.pages[p];
+        if(pg&&pg.memorized&&pg.movedToCycle===undefined)pg.movedToCycle=true; // pre-existing progress defaults into the cycle, not Hifdh Review
+      });
+      return merged;
+    }
+  }catch(e){}
+  return defaultState();
+}
+function saveState(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window._toastTimer);window._toastTimer=setTimeout(()=>t.classList.remove('show'),2200);}
+
+/* ============ DERIVED HELPERS ============ */
+function memorizedPagesSorted(){return Object.keys(state.pages).map(Number).filter(p=>state.pages[p]&&state.pages[p].memorized).sort((a,b)=>a-b);}
+function isMemorized(p){return !!(state.pages[p]&&state.pages[p].memorized);}
+function isInMurajaahCycle(p){return isMemorized(p)&&!!(state.pages[p].movedToCycle);}
+function pagesInHifdhReview(){return memorizedPagesSorted().filter(p=>!state.pages[p].movedToCycle);}
+function pagesInMurajaahPool(){return memorizedPagesSorted().filter(p=>state.pages[p].movedToCycle);}
+function cycleHasAnyPlacedPage(){
+  return !!(state.cycle&&state.cycle.days&&Object.values(state.cycle.days).some(e=>e&&(e.base.length||e.extra.length)));
+}
+function placePoolPagesNow(){
+  // Used only by the bulk "already memorised up to here" tools, which put pages straight into
+  // the running cycle. Single pages moved over from Hifdh Review do NOT use this — they wait.
+  if(!cycleHasValidShape(state.cycle)||state.config.cycleUnit==='custom')return;
+  pagesInMurajaahPool().forEach(p=>ensureMinimumAppearance(p));
+}
+function moveToMurajaah(p){
+  if(!state.pages[p])return;
+  state.pages[p].movedToCycle=true;
+  // The page is NOT slotted into the running cycle (no Extra Review, no day card) — it simply
+  // joins the Muraja'ah pool and is laid out normally when the next cycle is generated. The one
+  // exception is a cycle with nothing scheduled at all yet, which is generated straight away so
+  // the page isn't left waiting on an empty cycle.
+  if(!cycleHasValidShape(state.cycle)||(!cycleHasAnyPlacedPage()&&state.config.cycleUnit!=='custom')){
+    state.cycle=generateCycle(todayISO());
+  }
+  saveState();
+}
+function movePageBackToHifdh(p){
+  // Undo for an accidental "Move to Muraja'ah cycle": the page returns to Hifdh Review and is
+  // taken out of every cycle day (base or extra) and off the Review Day list. Logged mistakes and
+  // review history are left untouched.
+  if(!state.pages[p])return false;
+  state.pages[p].movedToCycle=false;
+  if(state.cycle&&state.cycle.days){
+    Object.keys(state.cycle.days).forEach(d=>{
+      const e=state.cycle.days[d];
+      if(!e)return;
+      e.base=e.base.filter(x=>x!==p);
+      e.extra=e.extra.filter(x=>x!==p);
+    });
+  }
+  state.sundayExtra=(state.sundayExtra||[]).filter(x=>x!==p);
+  saveState();
+  return true;
+}
+function movePageToTomorrow(page,dayIdx){
+  if(!state.cycle)return false;
+  const n=effectiveCycleDays();
+  const nextDay=dayIdx+1;
+  if(nextDay>n)return false;
+  const cur=state.cycle.days[dayIdx];
+  const wasExtra=!!(cur&&cur.extra.includes(page));
+  if(cur){cur.base=cur.base.filter(x=>x!==page);cur.extra=cur.extra.filter(x=>x!==page);}
+  if(!state.cycle.days[nextDay])state.cycle.days[nextDay]={base:[],extra:[]};
+  const nd=state.cycle.days[nextDay];
+  if(!nd.base.includes(page)&&!nd.extra.includes(page)){
+    const list=wasExtra?nd.extra:nd.base; // repeat/extra pages stay under Extra Review on their new day
+    list.push(page);
+    list.sort((a,b)=>a-b); // keep numeric order — a page moved to 22 lands before an existing 23
+  }
+  saveState();
+  return true;
+}
+function movePageToYesterday(page,dayIdx){
+  if(!state.cycle)return false;
+  const prevDay=dayIdx-1;
+  if(prevDay<1)return false;
+  const cur=state.cycle.days[dayIdx];
+  const wasExtra=!!(cur&&cur.extra.includes(page));
+  if(cur){cur.base=cur.base.filter(x=>x!==page);cur.extra=cur.extra.filter(x=>x!==page);}
+  if(!state.cycle.days[prevDay])state.cycle.days[prevDay]={base:[],extra:[]};
+  const pd=state.cycle.days[prevDay];
+  if(!pd.base.includes(page)&&!pd.extra.includes(page)){
+    const list=wasExtra?pd.extra:pd.base;
+    list.push(page);
+    list.sort((a,b)=>a-b);
+  }
+  saveState();
+  return true;
+}
+function computeCycleChunks(pages){
+  // Shared by generateCycle and computeNaturalBaseDay so a page's "natural" day always matches
+  // how a fresh cycle actually lays things out.
+  //
+  // For Juz/half-Juz modes this does NOT slice by a fixed count of half-Juz units — individual
+  // Juz differ in page length (19-23 pages in the standard Mushaf), so grouping by unit-count
+  // alone produced uneven days. Instead, the Juz/half-Juz setting only decides the TARGET number
+  // of days (via the average half-Juz length), and splitIntoChunks — the same equal-split used
+  // by "Pages" mode — then divides the page pool into that many day-sized pieces, each within 1
+  // page of every other. Day labels (computed separately) still describe whichever Juz/half-Juz
+  // span each day's actual pages happen to fall in.
+  if(state.config.cycleUnit==='custom')return pages.length?[pages]:[[]]; // custom mode has no algorithmic chunking — days are set by hand instead
+  if(CYCLE_UNIT_HALVES[state.config.cycleUnit]){
+    const segments=halfJuzSegments(pages);
+    const unitsPerGroup=CYCLE_UNIT_HALVES[state.config.cycleUnit];
+    const numDays=Math.max(1,Math.round(segments.length/unitsPerGroup));
+    return splitIntoChunks(pages,numDays);
+  }
+  return splitIntoChunks(pages,configuredCycleDays());
+}
+function halfJuzOfPage(p){
+  const j=juzOf(p);
+  const[start,end]=juzRange(j);
+  const mid=start+Math.floor((end-start+1)/2)-1;
+  return {juz:j,half:p<=mid?1:2};
+}
+function pageRangeJuzLabel(pages){
+  if(!pages||pages.length===0)return null;
+  const first=pages[0],last=pages[pages.length-1];
+  const a=halfJuzOfPage(first),b=halfJuzOfPage(last);
+  if(a.juz===b.juz&&a.half===1&&b.half===2)return `Juz ${a.juz}`; // spans a whole Juz exactly
+  const startLabel=segmentLabel({juz:a.juz,half:a.half},true);
+  const endLabel=segmentLabel({juz:b.juz,half:b.half},true);
+  return (a.juz===b.juz&&a.half===b.half)?startLabel:`${startLabel} – ${endLabel}`;
+}
+function computeNaturalBaseDay(page){
+  const pool=pagesInMurajaahPool();
+  const chunks=computeCycleChunks(pool);
+  for(let i=0;i<chunks.length;i++){
+    if(chunks[i].includes(page))return i+1;
+  }
+  return null;
+}
+function moveToExtraReview(page,dayIdx){
+  if(!state.cycle)return false;
+  const n=effectiveCycleDays();
+  if(dayIdx<1||dayIdx>n)return false;
+  // remove any existing appearance elsewhere first, so it doesn't show twice
+  for(let d=1;d<=n;d++){
+    if(state.cycle.days[d]){
+      state.cycle.days[d].base=state.cycle.days[d].base.filter(x=>x!==page);
+      if(d!==dayIdx)state.cycle.days[d].extra=state.cycle.days[d].extra.filter(x=>x!==page);
+    }
+  }
+  if(!state.cycle.days[dayIdx])state.cycle.days[dayIdx]={base:[],extra:[]};
+  const entry=state.cycle.days[dayIdx];
+  if(!entry.extra.includes(page)){
+    entry.extra.push(page);
+    entry.extra.sort((a,b)=>a-b);
+  }
+  saveState();
+  return true;
+}
+function removeFromExtraReview(page,dayIdx){
+  if(!state.cycle)return false;
+  const entry=state.cycle.days[dayIdx];
+  if(!entry)return false;
+  entry.extra=entry.extra.filter(x=>x!==page);
+  // Restore it to its original slot — the day it would naturally fall on given mushaf-order
+  // chunking — rather than letting it vanish or re-appearing as another extra pass elsewhere.
+  const n=effectiveCycleDays();
+  let hasAny=false;
+  for(let d=1;d<=n;d++){
+    const e=state.cycle.days[d];
+    if(e&&(e.base.includes(page)||e.extra.includes(page))){hasAny=true;break;}
+  }
+  if(!hasAny){
+    let targetDay=computeNaturalBaseDay(page);
+    if(targetDay===null||targetDay<1||targetDay>n)targetDay=Math.min(n,Math.max(1,currentCycleDayIndex()));
+    if(!state.cycle.days[targetDay])state.cycle.days[targetDay]={base:[],extra:[]};
+    if(!state.cycle.days[targetDay].base.includes(page)&&!state.cycle.days[targetDay].extra.includes(page)){
+      state.cycle.days[targetDay].base.push(page);
+      state.cycle.days[targetDay].base.sort((a,b)=>a-b);
+    }
+  }
+  saveState();
+  return true;
+}
+function nextUnmemorizedPages(count){const out=[];for(let p=1;p<=TOTAL_PAGES&&out.length<count;p++){if(!isMemorized(p))out.push(p);}return out;}
+function resizeCurrentWeekTarget(ppw){
+  // Changes this week's target to match a new pages-per-week setting, without losing progress:
+  // pages already memorised this week stay in the target, and the not-yet-done portion grows or
+  // shrinks (pulling in more upcoming pages, or trimming the tail) to reach the new count.
+  const target=state.currentWeek.targetPages||[];
+  const done=target.filter(isMemorized);
+  const pending=target.filter(p=>!isMemorized(p));
+  const need=Math.max(0,ppw-done.length);
+  let newPending;
+  if(pending.length>=need){
+    newPending=pending.slice(0,need);
+  }else{
+    const targetSet=new Set(target);
+    const extra=[];
+    for(let p=1;p<=TOTAL_PAGES&&extra.length<(need-pending.length);p++){
+      if(!isMemorized(p)&&!targetSet.has(p))extra.push(p);
+    }
+    newPending=[...pending,...extra];
+  }
+  state.currentWeek.targetPages=[...done,...newPending].sort((a,b)=>a-b);
+}
+
+/* ============ AL-BAQARAH KHATMA (7-day recurring reading goal) ============ */
+function baqarahPageRange(){
+  const idx=SURAHS.findIndex(r=>r[0]===2);
+  const start=SURAHS[idx][3];
+  const next=SURAHS[idx+1];
+  const end=next[3]>start?next[3]-1:next[3];
+  const pages=[];for(let p=start;p<=end;p++)pages.push(p);
+  return pages;
+}
+function generateBaqarahKhatma(startDate){
+  const pages=baqarahPageRange();
+  const chunks=splitIntoChunks(pages,7);
+  const days={};
+  chunks.forEach((c,i)=>{days[i+1]=c;});
+  return{startDate,days,readPages:{}};
+}
+function ensureBaqarahKhatma(){
+  if(!state.baqarahKhatma||!state.baqarahKhatma.startDate){
+    state.baqarahKhatma=generateBaqarahKhatma(todayISO());
+    saveState();
+    return;
+  }
+  const elapsed=daysBetween(state.baqarahKhatma.startDate,todayISO());
+  if(elapsed>=7){
+    state.baqarahKhatma=generateBaqarahKhatma(todayISO());
+    saveState();
+    return;
+  }
+  carryOverBaqarahMissedPages();
+}
+function baqarahCurrentDayIndex(){
+  const elapsed=daysBetween(state.baqarahKhatma.startDate,todayISO());
+  return Math.min(7,elapsed+1);
+}
+function carryOverBaqarahMissedPages(){
+  if(!state.baqarahKhatma)return;
+  const dayIdx=baqarahCurrentDayIndex();
+  if(dayIdx<=1)return;
+  state.baqarahKhatma.carried=state.baqarahKhatma.carried||{};
+  let changed=false;
+  for(let d=1;d<dayIdx;d++){
+    if(state.baqarahKhatma.carried[d])continue;
+    state.baqarahKhatma.carried[d]=true;
+    const dayPages=state.baqarahKhatma.days[d]||[];
+    const unread=dayPages.filter(p=>!state.baqarahKhatma.readPages[p]);
+    if(unread.length>0){
+      state.baqarahKhatma.days[d]=dayPages.filter(p=>state.baqarahKhatma.readPages[p]);
+      if(!state.baqarahKhatma.days[dayIdx])state.baqarahKhatma.days[dayIdx]=[];
+      unread.forEach(p=>{
+        if(!state.baqarahKhatma.days[dayIdx].includes(p))state.baqarahKhatma.days[dayIdx].push(p);
+      });
+      state.baqarahKhatma.days[dayIdx].sort((a,b)=>a-b);
+      changed=true;
+    }
+  }
+  if(changed)saveState();
+}
+function toggleBaqarahPageRead(page,forceState){
+  if(!state.baqarahKhatma)return;
+  const cur=!!state.baqarahKhatma.readPages[page];
+  const next=(forceState!==undefined)?forceState:!cur;
+  if(next)state.baqarahKhatma.readPages[page]=todayISO();
+  else delete state.baqarahKhatma.readPages[page];
+  saveState();
+}
+function markAllBaqarahToday(){
+  if(!state.baqarahKhatma)return;
+  const dayIdx=baqarahCurrentDayIndex();
+  const todayPages=state.baqarahKhatma.days[dayIdx]||[];
+  todayPages.forEach(p=>{state.baqarahKhatma.readPages[p]=todayISO();});
+  saveState();
+}
+function baqarahKhatmaCardHtml(){
+  ensureBaqarahKhatma();
+  const dayIdx=baqarahCurrentDayIndex();
+  const todayPages=state.baqarahKhatma.days[dayIdx]||[];
+  const totalPages=baqarahPageRange().length;
+  const readCount=Object.keys(state.baqarahKhatma.readPages).length;
+  const pct=totalPages?Math.round(readCount/totalPages*100):0;
+  const allDoneToday=todayPages.length>0&&todayPages.every(p=>!!state.baqarahKhatma.readPages[p]);
+  return `
+  <div class="card">
+    <div class="eyebrow">Al-Baqarah Khatma · Day ${dayIdx} of 7</div>
+    <h2>${readCount}/${totalPages} pages read this khatma</h2>
+    <div class="progressbar"><div style="width:${pct}%"></div></div>
+    <div class="desc">A fresh khatma of Surah Al-Baqarah every 7 days. Today's portion:</div>
+    <div class="pagelist">${todayPages.map(p=>{
+      const done=!!state.baqarahKhatma.readPages[p];
+      return `<label class="pagechip ${done?'done':''}"><input type="checkbox" data-action="toggle-baqarah-page" data-page="${p}" ${done?'checked':''}><span class="num">${pad3(p)}</span></label>`;
+    }).join('')||'<span class="emptynote">Nothing scheduled today.</span>'}</div>
+    ${todayPages.length>0&&!allDoneToday?`<button class="btn small gold" data-action="mark-all-baqarah" style="margin-top:8px;">Mark All as Complete</button>`:''}
+  </div>`;
+}
+
+function pageStrength(page){
+  const entries=state.reviewLog.filter(r=>r.page===page).slice(-5);
+  if(entries.length===0)return null;
+  let wsum=0,wtotal=0;
+  entries.forEach((e,i)=>{const w=i+1;wsum+=e.mistakeCount*w;wtotal+=w;});
+  const avg=wtotal?wsum/wtotal:0;
+  return Math.max(0,Math.min(100,Math.round(100-avg*15)));
+}
+function strengthBand(score){
+  if(score===null)return 'new';
+  if(score>=80)return 'strong';
+  if(score>=50)return 'medium';
+  return 'weak';
+}
+function rangeStrength(start,end){
+  const pages=[];for(let p=start;p<=end;p++)pages.push(p);
+  const memPages=pages.filter(isMemorized);
+  if(memPages.length===0)return{status:'not-started',pct:0,memCount:0,total:pages.length,score:null};
+  const scored=memPages.map(pageStrength).filter(s=>s!==null);
+  const pct=Math.round(memPages.length/pages.length*100);
+  if(scored.length===0)return{status:'unreviewed',pct,memCount:memPages.length,total:pages.length,score:null};
+  const avg=Math.round(scored.reduce((a,b)=>a+b,0)/scored.length);
+  return{status:'scored',pct,memCount:memPages.length,total:pages.length,score:avg};
+}
+
+/* ============ CYCLE LOGIC ============ */
+function splitIntoChunks(pages,n){
+  const len=pages.length;const base=Math.floor(len/n);let rem=len%n;
+  const chunks=[];let idx=0;
+  for(let i=0;i<n;i++){const size=base+(i<rem?1:0);chunks.push(pages.slice(idx,idx+size));idx+=size;}
+  return chunks;
+}
+function configuredCycleDays(){const v=state.config.hifdhPaused?state.config.pausedCycleDays:state.config.revisionCycleDays;return Number(v)>0?Number(v):7;}
+function effectiveCycleDays(){
+  if(state.cycle&&state.cycle.days){
+    const keys=Object.keys(state.cycle.days).map(Number);
+    if(keys.length>0)return Math.max(...keys);
+  }
+  return state.config.cycleUnit==='custom'?0:configuredCycleDays(); // a custom cycle has no defined length until you set a first day
+}
+const CYCLE_UNIT_HALVES={halfJuz:1,juz:2,juz1_5:3,juz2:4,juz2_5:5,juz3:6};
+function halfJuzSegments(pages){
+  const segs=[];
+  for(let j=1;j<=30;j++){
+    const[start,end]=juzRange(j);
+    const mid=start+Math.floor((end-start+1)/2)-1;
+    const firstHalf=pages.filter(p=>p>=start&&p<=mid).sort((a,b)=>a-b);
+    const secondHalf=pages.filter(p=>p>mid&&p<=end).sort((a,b)=>a-b);
+    if(firstHalf.length>0)segs.push({juz:j,half:1,pages:firstHalf});
+    if(secondHalf.length>0)segs.push({juz:j,half:2,pages:secondHalf});
+  }
+  return segs;
+}
+function segmentLabel(seg,showHalf){
+  if(!showHalf)return `Juz ${seg.juz}`;
+  return seg.half===1?`Juz ${seg.juz} · 1st half`:`Juz ${seg.juz} · 2nd half`;
+}
+function groupSegments(segments,unitsPerGroup,showHalf){
+  const groups=[];
+  for(let i=0;i<segments.length;i+=unitsPerGroup){
+    const chunk=segments.slice(i,i+unitsPerGroup);
+    const pages=chunk.flatMap(s=>s.pages).sort((a,b)=>a-b);
+    const startLabel=segmentLabel(chunk[0],showHalf);
+    const endLabel=segmentLabel(chunk[chunk.length-1],showHalf);
+    const label=chunk.length===1||startLabel===endLabel?startLabel:`${startLabel} – ${endLabel}`;
+    groups.push({label,pages});
+  }
+  return groups;
+}
+function weaknessMistakeCount(page){
+  // Scoped to the current cycle only — a page's mistake count resets whenever a genuine new
+  // cycle starts (not on a reflow, which keeps the same cycle/start date). Ayah-level recurrence
+  // (Weak Ayah Review) is tracked completely separately and does not reset with this.
+  const cycleStart=state.cycle?state.cycle.startDate:null;
+  return state.mistakes.filter(m=>m.page===page&&(!cycleStart||m.date>=cycleStart)).length;
+}
+function pageExtraCount(page){
+  // A page with 4+ mistakes this cycle gets exactly one extra pass this cycle.
+  return weaknessMistakeCount(page)>=4?1:0;
+}
+function buildDaysFromChunks(chunks){
+  // A page with 4+ mistakes this cycle is collected onto the Review Day card instead of getting a
+  // scattered second pass on some other day — see ensureExtraForPage, called from ensureCycle's
+  // self-heal pass once state.cycle is actually in place.
+  const n=chunks.length;
+  const days={};
+  for(let i=0;i<n;i++)days[i+1]={base:chunks[i].slice().sort((a,b)=>a-b),extra:[]};
+  return days;
+}
+function generateCycle(startDate){
+  const pages=pagesInMurajaahPool();
+  state.cycleSeq=(state.cycleSeq||0)+1; // increments once per genuine new cycle — used to track ayah mistake recurrence across consecutive cycles
+  if(state.config.cycleUnit==='custom'){
+    // Days aren't pre-chunked here — you define each one by hand (page range or Surah) via "Set
+    // Today's Muraja'ah" as you go.
+    return {startDate,days:{},dayMeta:{},reviewedToday:{},seq:state.cycleSeq};
+  }
+  const chunks=computeCycleChunks(pages);
+  const labels=CYCLE_UNIT_HALVES[state.config.cycleUnit]?chunks.map(c=>pageRangeJuzLabel(c)):chunks.map(()=>null);
+  const days=buildDaysFromChunks(chunks);
+  const dayMeta={};
+  Object.keys(days).forEach(d=>{dayMeta[d]=labels[Number(d)-1];});
+  const cycle={startDate,days,dayMeta,reviewedToday:{},seq:state.cycleSeq};
+  const prevCycle=state.cycle;
+  state.cycle=cycle; // ensureMinimumAppearance needs state.cycle set to check/place against
+  pages.forEach(p=>ensureMinimumAppearance(p));
+  state.cycle=prevCycle;
+  return cycle;
+}
+function cycleHasValidShape(cycle){
+  if(!cycle||!cycle.days)return false;
+  const keys=Object.keys(cycle.days);
+  if(keys.length===0)return state.config.cycleUnit==='custom'; // a custom cycle starts empty and is filled in day by day
+  const first=cycle.days[keys[0]];
+  return !!first&&Array.isArray(first.base)&&Array.isArray(first.extra);
+}
+function ensureCycle(){
+  if(!cycleHasValidShape(state.cycle)){state.cycle=generateCycle(todayISO());saveState();return;}
+  if(state.cycle.dayMeta&&Array.isArray(state.cycle.dayMeta)){
+    const asObj={};
+    state.cycle.dayMeta.forEach((label,i)=>{asObj[i+1]=label;});
+    state.cycle.dayMeta=asObj;
+  }
+  if(state.config.cycleUnit==='custom'){
+    const dayIdx=currentCycleDayIndex();
+    const pool=pagesInMurajaahPool();
+    const covered=pool.length>0&&pool.every(p=>Object.values(state.cycle.days).some(e=>e.base.includes(p)||e.extra.includes(p)));
+    if(covered&&!state.cycle.days[dayIdx]){
+      // Every memorised page has been scheduled at least once this cycle, and today has no plan
+      // yet — start a fresh cycle rather than asking you to keep extending an already-finished one.
+      state.cycle=generateCycle(todayISO());
+      saveState();
+      return;
+    }
+  }else{
+    const elapsed=daysBetween(state.cycle.startDate,todayISO());
+    if(elapsed>=effectiveCycleDays()){
+      state.cycle=generateCycle(todayISO());
+      saveState();
+      return;
+    }
+  }
+  // Self-heal: top up any page whose extra pass(es) landed on an already-elapsed day or were
+  // otherwise never fully placed, and guarantee none dropped out entirely. In custom mode this
+  // skips ensureMinimumAppearance deliberately — a page you haven't chosen to schedule yet should
+  // stay unscheduled, not get silently dumped into today's Extra Review.
+  // Pages stay on whichever day they were assigned to, completed or not — nothing carries forward
+  // on its own; only an explicit move-to-tomorrow/yesterday or Extra Review action relocates a page.
+  // Pages newly moved over from Hifdh Review are deliberately NOT placed here — they wait for the
+  // next generated cycle instead of showing up mid-cycle as Extra Review.
+  pagesInMurajaahPool().forEach(p=>ensureExtraForPage(p));
+  saveState();
+}
+function calendarDateForCycleDay(d){return addDaysISO(state.cycle.startDate,d-1);}
+function realCycleDayIndex(){
+  const elapsed=daysBetween(state.cycle.startDate,todayISO());
+  const idx=elapsed+1;
+  // Custom-mode days aren't pre-chunked to a fixed count, so today's index just keeps advancing
+  // with the calendar — other modes cap it at the cycle's actual length.
+  return state.config.cycleUnit==='custom'?idx:Math.min(effectiveCycleDays(),idx);
+}
+function currentCycleDayIndex(){
+  if(state.cycle&&state.cycle.dayOverride){
+    // The override is an anchor, not a one-day snapshot: "Day 7 today" means Day 8 tomorrow,
+    // Day 9 the day after, etc. — it keeps advancing on its own from the day you picked.
+    const sinceAnchor=daysBetween(state.cycle.dayOverrideDate,todayISO());
+    const projected=state.cycle.dayOverride+sinceAnchor;
+    return state.config.cycleUnit==='custom'?Math.max(1,projected):Math.min(effectiveCycleDays(),Math.max(1,projected));
+  }
+  const elapsed=daysBetween(state.cycle.startDate,todayISO());
+  const idx=elapsed+1;
+  return state.config.cycleUnit==='custom'?idx:Math.min(effectiveCycleDays(),idx);
+}
+function restartCycleNow(){state.cycle=generateCycle(todayISO());}
+
+/* ============ WEEK LOGIC ============ */
+function isDayPace(){return state.config.paceMode==='day';}
+function batchSize(){return isDayPace()?(Number(state.config.pagesPerDay)||1):(Number(state.config.pagesPerWeek)||5);}
+function ensureCurrentWeek(){
+  if(state.config.hifdhPaused)return;
+  if(!state.currentWeek||!state.currentWeek.targetPages||state.currentWeek.targetPages.length===0){
+    state.currentWeek={targetPages:nextUnmemorizedPages(batchSize()),startDate:todayISO()};
+    saveState();
+  }else if(isDayPace()&&weekIsComplete()&&state.currentWeek.startDate<todayISO()){
+    // Per-day pace: yesterday's pages are finished, so today's batch starts on its own. An
+    // unfinished batch stays put until it's done — nothing is skipped or reshuffled.
+    advanceWeek();
+  }
+}
+function weekIsComplete(){return state.currentWeek.targetPages.length>0 && state.currentWeek.targetPages.every(isMemorized);}
+function advanceWeek(){
+  state.prevWeeksHistory.push({targetPages:state.currentWeek.targetPages.slice(),startDate:state.currentWeek.startDate,completedDate:todayISO()});
+  state.currentWeek={targetPages:nextUnmemorizedPages(batchSize()),startDate:todayISO()};
+  saveState();
+}
+function prepPages(){
+  const targetSet=new Set(state.currentWeek.targetPages);
+  const out=[];
+  for(let p=1;p<=TOTAL_PAGES&&out.length<batchSize();p++){
+    if(!isMemorized(p)&&!targetSet.has(p))out.push(p);
+  }
+  return out;
+}
+
+/* ============ MUTATIONS ============ */
+function togglePageMemorized(p,forceState){
+  const cur=isMemorized(p);
+  const next=(forceState!==undefined)?forceState:!cur;
+  if(next){
+    const wasMovedBefore=state.pages[p]&&state.pages[p].movedToCycle;
+    state.pages[p]={...(state.pages[p]||{}),memorized:true,date:todayISO(),movedToCycle:!!wasMovedBefore};
+  }else{
+    if(state.pages[p]){delete state.pages[p].memorized;delete state.pages[p].date;delete state.pages[p].movedToCycle;if(!state.pages[p].preppedDate)delete state.pages[p];}
+  }
+  saveState();
+}
+function isPrepped(p){return !!(state.pages[p]&&state.pages[p].preppedDate===todayISO());}
+function togglePrepped(p,forceState){
+  const cur=isPrepped(p);
+  const next=(forceState!==undefined)?forceState:!cur;
+  state.pages[p]={...(state.pages[p]||{})};
+  if(next){state.pages[p].preppedDate=todayISO();}
+  else{delete state.pages[p].preppedDate;if(!state.pages[p].memorized)delete state.pages[p];}
+  saveState();
+}
+function markPagesMemorizedUpTo(n){
+  for(let p=1;p<=n;p++){state.pages[p]={memorized:true,date:todayISO(),movedToCycle:true};}
+  // Bulk-setting progress means "start fresh from here" — this week's target should now begin at
+  // the next unmemorised page, not whatever was targeted before this update.
+  state.currentWeek={targetPages:nextUnmemorizedPages(batchSize()),startDate:todayISO()};
+  placePoolPagesNow();
+  saveState();
+}
+function toggleJuzMemorized(j){
+  const[start,end]=juzRange(j);
+  const allMem=[...Array(end-start+1)].every((_,i)=>isMemorized(start+i));
+  for(let p=start;p<=end;p++){
+    if(allMem)delete state.pages[p]; else state.pages[p]={memorized:true,date:todayISO(),movedToCycle:true};
+  }
+  // Same reasoning as markPagesMemorizedUpTo — refresh this week's target so it doesn't stay
+  // stuck on a stale or now-overlapping range.
+  state.currentWeek={targetPages:nextUnmemorizedPages(batchSize()),startDate:todayISO()};
+  placePoolPagesNow();
+  saveState();
+}
+function ensureMinimumAppearance(page){
+  // Defensive guarantee: every pool page must appear at least once somewhere in the cycle
+  // (past or future), regardless of how many times the cycle has been rebuilt/reflowed.
+  if(!state.cycle)return;
+  const n=effectiveCycleDays();
+  for(let d=1;d<=n;d++){
+    const entry=state.cycle.days[d];
+    if(entry&&(entry.base.includes(page)||entry.extra.includes(page)))return; // already appears somewhere
+  }
+  const dayIdx=currentCycleDayIndex();
+  const candidates=[];
+  for(let d=dayIdx;d<=n;d++)candidates.push(d);
+  if(candidates.length===0)candidates.push(Math.max(1,n));
+  candidates.sort((a,b)=>{
+    const la=state.cycle.days[a]?state.cycle.days[a].base.length+state.cycle.days[a].extra.length:0;
+    const lb=state.cycle.days[b]?state.cycle.days[b].base.length+state.cycle.days[b].extra.length:0;
+    return la-lb;
+  });
+  const d=candidates[0];
+  if(!state.cycle.days[d])state.cycle.days[d]={base:[],extra:[]};
+  if(!state.cycle.days[d].extra.includes(page)&&!state.cycle.days[d].base.includes(page)){
+    state.cycle.days[d].extra.push(page);
+    state.cycle.days[d].extra.sort((a,b)=>a-b);
+  }
+}
+function ensureExtraForPage(page){
+  // A page with 4+ mistakes this cycle is collected onto the single "Review Day" card instead of
+  // getting a scattered second pass on some other day — reviewed all together, in one sitting.
+  // Review Day is permanent, not tied to any one cycle: a page added here stays until you explicitly
+  // mark it fixed — it is never cleared just because a cycle ended or mistakes reset.
+  if(!state.cycle)return;
+  if(!isInMurajaahCycle(page))return; // still in daily Hifdh Review, not part of the Muraja'ah pool yet
+  if(!state.sundayExtra)state.sundayExtra=[];
+  if(pageExtraCount(page)>0&&!state.sundayExtra.includes(page)){
+    state.sundayExtra.push(page);
+    state.sundayExtra.sort((a,b)=>a-b);
+  }
+}
+function markReviewDayFixed(page){
+  if(!state.sundayExtra)return;
+  state.sundayExtra=state.sundayExtra.filter(p=>p!==page);
+  saveState();
+}
+function addToReviewDayManually(page){
+  // Additive, unlike moveToExtraReview — the page's existing day card (base or a manual extra
+  // elsewhere) is left completely untouched; Review Day just gets a second, duplicate card for it.
+  if(!state.sundayExtra)state.sundayExtra=[];
+  if(!state.sundayExtra.includes(page)){
+    state.sundayExtra.push(page);
+    state.sundayExtra.sort((a,b)=>a-b);
+  }
+  saveState();
+}
+function ayahKey(page,surahNum,ayah){return `${page}|${surahNum}|${(ayah||'').trim()}`;}
+function updateAyahTracking(page,surahNum,surahName,ayah,note){
+  if(!isInMurajaahCycle(page))return; // recurrence only tracked for pages actually in the Muraja'ah cycle
+  if(!state.cycle||typeof state.cycle.seq!=='number')return;
+  const key=ayahKey(page,surahNum,ayah);
+  state.ayahTracking=state.ayahTracking||{};
+  const existing=state.ayahTracking[key];
+  const curSeq=state.cycle.seq;
+  if(existing&&existing.lastCycleSeq===curSeq){
+    existing.date=todayISO();
+    if(note)existing.note=note;
+  }else if(existing&&existing.lastCycleSeq===curSeq-1){
+    existing.streak=(existing.streak||1)+1; // mistake logged again in the very next cycle — recurring
+    existing.lastCycleSeq=curSeq;
+    existing.date=todayISO();
+    if(note)existing.note=note;
+  }else{
+    state.ayahTracking[key]={page,surahNum,surahName,ayah,streak:1,lastCycleSeq:curSeq,date:todayISO(),note:note||''};
+  }
+}
+function updateHifdhAyahTracking(page,surahNum,surahName,ayah,note){
+  // Same idea as updateAyahTracking above, but for Hifdh Review pages (not yet in the Muraja'ah
+  // cycle) and scoped by consecutive calendar days instead of consecutive cycles, since these
+  // pages are reviewed daily rather than on a cycle.
+  if(isInMurajaahCycle(page))return;
+  const key=ayahKey(page,surahNum,ayah);
+  state.hifdhAyahTracking=state.hifdhAyahTracking||{};
+  const existing=state.hifdhAyahTracking[key];
+  const today=todayISO();
+  if(existing&&existing.lastDate===today){
+    if(note)existing.note=note; // same day, another mistake logged on the same ayah — don't double-count the streak
+  }else if(existing&&daysBetween(existing.lastDate,today)===1){
+    existing.streak=(existing.streak||1)+1; // mistake logged again the very next day — recurring
+    existing.lastDate=today;
+    if(note)existing.note=note;
+  }else{
+    state.hifdhAyahTracking[key]={page,surahNum,surahName,ayah,streak:1,lastDate:today,note:note||''};
+  }
+}
+function addMistake(page,surahNum,surahName,ayah,note,cycleDay,logDate){
+  const d=logDate||todayISO();
+  const dateEntries=state.reviewLog.filter(r=>r.page===page&&r.date===d);
+  const last=dateEntries[dateEntries.length-1];
+  let reviewLogId;
+  if(last&&last.mistakeCount>0){
+    last.mistakeCount+=1; // still the same flawed attempt — accumulate into it
+    reviewLogId=last.id;
+  }else{
+    reviewLogId=Date.now()+Math.random();
+    state.reviewLog.push({id:reviewLogId,page,date:d,mistakeCount:1,cycleDay,fromMistake:true}); // fresh attempt (first mistake, or after a correction)
+  }
+  state.mistakes.push({id:Date.now()+Math.random(),page,surahNum,surahName,ayah,note,date:d,fixed:false,reviewLogId});
+  updateAyahTracking(page,surahNum,surahName,ayah,note);
+  updateHifdhAyahTracking(page,surahNum,surahName,ayah,note);
+  if(state.cycle&&d===todayISO())state.cycle.reviewedToday[page]=true;
+  ensureExtraForPage(page);
+  saveState();
+}
+function removeMistake(id){
+  const m=state.mistakes.find(x=>String(x.id)===String(id));
+  if(m){
+    let entry=m.reviewLogId?state.reviewLog.find(r=>String(r.id)===String(m.reviewLogId)):null;
+    if(!entry){
+      // Legacy mistake logged before session-linking existed — best effort: the most recent
+      // same-page, same-date session that still has a mistake count to reduce.
+      const candidates=state.reviewLog.filter(r=>r.page===m.page&&r.date===m.date&&r.mistakeCount>0);
+      entry=candidates[candidates.length-1]||null;
+    }
+    state.mistakes=state.mistakes.filter(x=>String(x.id)!==String(id));
+    if(entry){
+      if(m.reviewLogId){
+        // Fully derived from what's actually still linked to this session — self-healing,
+        // immune to any prior drift, rather than a fragile manual decrement.
+        entry.mistakeCount=state.mistakes.filter(x=>String(x.reviewLogId)===String(entry.id)).length;
+      }else{
+        entry.mistakeCount=Math.max(0,entry.mistakeCount-1); // legacy fallback: best-effort decrement
+      }
+      if(entry.mistakeCount===0){
+        // This session only ever existed because of (now-deleted) mistakes — remove it entirely
+        // rather than leaving a phantom "reviewed" session (e.g. a stale "Revised today" banner).
+        state.reviewLog=state.reviewLog.filter(r=>String(r.id)!==String(entry.id));
+      }
+    }
+  }else{
+    state.mistakes=state.mistakes.filter(x=>String(x.id)!==String(id));
+  }
+  saveState();
+}
+function toggleMistakeFixed(id,forceState){
+  const m=state.mistakes.find(m=>String(m.id)===String(id));
+  if(!m)return;
+  m.fixed=(forceState!==undefined)?forceState:!m.fixed;
+  m.fixedDate=m.fixed?todayISO():undefined;
+  saveState();
+}
+function todaysMistakeCount(page){
+  return state.mistakes.filter(m=>m.page===page&&m.date===todayISO()).length;
+}
+function markPageRevised(page,cycleDay){
+  const mistakeCount=todaysMistakeCount(page);
+  state.reviewLog.push({id:Date.now()+Math.random(),page,date:todayISO(),mistakeCount,cycleDay});
+  if(state.cycle)state.cycle.reviewedToday[page]=true;
+  saveState();
+}
+function markPageCorrected(page,cycleDay){
+  state.reviewLog.push({id:Date.now()+Math.random(),page,date:todayISO(),mistakeCount:0,cycleDay});
+  if(state.cycle)state.cycle.reviewedToday[page]=true;
+  ensureExtraForPage(page);
+  saveState();
+}
+function isReviewedToday(page){
+  const logged=state.reviewLog.filter(r=>r.page===page&&r.date===todayISO());
+  return logged.length>0;
+}
+
+/* ============ RENDER: SHELL ============ */
+function init(){
+  state=loadState();
+  ensureCurrentWeek();
+  ensureCycle();
+  document.getElementById('todayLabel').textContent=new Date().toLocaleDateString('en-IE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.querySelectorAll('#tabs button').forEach(b=>{
+    b.addEventListener('click',()=>{state.activeTab=b.dataset.tab;saveState();render();window.scrollTo(0,0);}); // switching tabs is the one case where jumping to the top is actually wanted
+  });
+  if(!state.config.setupDone && memorizedPagesSorted().length===0){
+    openSetupModal();
+  }
+  render();
+}
+let openMistakeFormPage=null; // transient, not persisted — which page's "Log a mistake" form is currently expanded, if any
+function render(){
+  // Re-rendering replaces the whole tab's content, which otherwise makes the page visibly jump
+  // (new/changed cards above the fold shift everything, or the browser clamps scroll if the page
+  // got shorter). Restoring the exact scroll position afterwards keeps things feeling static for
+  // in-place updates like logging a mistake — only the explicit tab-switch above overrides this.
+  const scrollY=window.scrollY;
+  // Capture which mistake-form is currently open (a plain classList toggle, not a state change)
+  // BEFORE the DOM underneath it gets replaced — otherwise the rebuild below would momentarily
+  // render it closed (collapsing the tall ayah grid), shrinking the page and letting the browser
+  // clamp the scroll position up before it can be restored, then re-opening it and never
+  // recovering. Rendering it already-open in one pass avoids the collapse entirely.
+  const openForm=document.querySelector('.mistake-form.open');
+  openMistakeFormPage=openForm?openForm.id.replace('mform-',''):null;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===state.activeTab));
+  const el=document.getElementById('tabContent');
+  if(state.activeTab==='home')el.innerHTML=renderHome();
+  else if(state.activeTab==='memorize')el.innerHTML=renderMemorize();
+  else if(state.activeTab==='revise')el.innerHTML=renderRevise();
+  else if(state.activeTab==='progress')el.innerHTML=renderProgress();
+  else if(state.activeTab==='settings')el.innerHTML=renderSettings();
+  attachHandlers();
+  window.scrollTo(0,scrollY);
+}
+
+/* ============ RENDER: HOME ============ */
+function hifdhReviewCardHtml(){
+  const pages=pagesInHifdhReview();
+  const collapsed=state.ui&&state.ui.hifdhReviewCollapsed;
+  return `
+  <div class="card">
+    <div class="eyebrow" data-action="toggle-hifdh-review-collapse" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;">
+      <span>Hifdh Review</span>
+      <span style="font-size:11px;">${collapsed?'Show ▾':'Hide ▴'}</span>
+    </div>
+    <h2>${pages.length} page${pages.length===1?'':'s'} · review daily</h2>
+    ${collapsed?'':`
+    <div class="desc">Newly memorised pages stay here and get reviewed every day until you move them into the Muraja'ah cycle.</div>
+    ${pages.length===0?'<span class="emptynote">Nothing here yet — pages land here as soon as you memorise them.</span>':pages.map(p=>revisionCard(p,0,false,true)).join('')}
+    `}
+  </div>`;
+}
+function renderHome(){
+  ensureCurrentWeek();ensureCycle();
+  const memCount=memorizedPagesSorted().length;
+  const curJuz=memCount?juzOf(memorizedPagesSorted()[memorizedPagesSorted().length-1]):0;
+  const dayIdx=currentCycleDayIndex();
+  const todayEntry=state.cycle.days[dayIdx]||{base:[],extra:[]};
+  const todayPages=[...todayEntry.base,...todayEntry.extra];
+  const weekDone=weekIsComplete();
+  const prep=prepPages();
+  return `
+  <div class="card">
+    <div class="eyebrow">Overview</div>
+    <div class="statgrid">
+      <div class="stat"><div class="n">${memCount}</div><div class="l">Pages Memorised</div></div>
+      <div class="stat"><div class="n">${curJuz||'-'}</div><div class="l">Current Juz</div></div>
+      <div class="stat"><div class="n">${dayIdx}/${effectiveCycleDays()}</div><div class="l">Cycle Day</div></div>
+    </div>
+  </div>
+  ${baqarahKhatmaCardHtml()}
+
+  <div class="card">
+    <div class="eyebrow">${isDayPace()?"Today's":"This Week's"} Memorisation</div>
+    ${state.config.hifdhPaused?`
+      <h2>Hifdh paused</h2>
+      <div class="desc">New memorisation is on hold — you're focused on strengthening what's already memorised. Resume anytime from Settings.</div>
+    `:`
+      <h2>${state.currentWeek.targetPages.length} page target</h2>
+      <div class="progressbar"><div style="width:${weekProgressPct()}%"></div></div>
+      <div class="pagelist">${state.currentWeek.targetPages.map((p,i)=>pageChip(p,true,isDayPace()?null:i+1)).join('')}</div>
+      ${weekDone?`<button class="btn gold" data-action="advance-week">Start Next ${isDayPace()?"Day":"Week"}'s Pages</button>`:`<div class="taboftext">Tick pages off as you memorise them — ${isDayPace()?'tomorrow\'s pages start automatically once all are done.':'the next week begins automatically once all are done.'}</div>`}
+    `}
+  </div>
+
+  ${hifdhReviewCardHtml()}
+
+  ${prepCardHtml('Prepare For Ahead',`Preview these ${prep.length} pages`,`Read over them daily so they're familiar by the time it's their turn to be memorised.${state.config.hifdhPaused?' Keeps going even while hifdh is paused.':''}`)}
+
+  <div class="card">
+    <div class="eyebrow">Today's Revision · Day ${dayIdx} of ${effectiveCycleDays()}${state.cycle.dayMeta&&state.cycle.dayMeta[dayIdx]?' · '+state.cycle.dayMeta[dayIdx]:''}</div>
+    <h2>${todayPages.length} page${todayPages.length===1?'':'s'} to revise</h2>
+    ${todayPages.length===0?'<div class="emptynote">Nothing assigned yet — move pages into the Muraja\'ah cycle to begin.</div>':`
+      ${todayEntry.base.map(p=>revisionCard(p,dayIdx,false,false,false)).join('')}
+      ${todayEntry.extra.length?`<div class="eyebrow" style="margin-top:14px;">Extra Review</div>${todayEntry.extra.map(p=>revisionCard(p,dayIdx,true,false,false)).join('')}`:''}
+    `}
+  </div>
+  `;
+}
+function weekProgressPct(){
+  if(!state.currentWeek.targetPages.length)return 0;
+  const done=state.currentWeek.targetPages.filter(isMemorized).length;
+  return Math.round(done/state.currentWeek.targetPages.length*100);
+}
+function prepCardHtml(title,heading,desc){
+  const collapsed=!!state.ui.prepCollapsed;
+  const prep=prepPages();
+  return `<div class="card">
+    <div class="eyebrow" data-action="toggle-prep-collapse" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;"><span>${title}</span><span style="font-size:11px;">${collapsed?'Show ▾':'Hide ▴'}</span></div>
+    ${collapsed?'':`${heading?`<h2>${heading}</h2>`:''}${desc?`<div class="desc">${desc}</div>`:''}<div class="pagelist">${prep.map(p=>prepChip(p)).join('')||'<span class="emptynote">Nothing queued.</span>'}</div>`}
+  </div>`;
+}
+function prepChip(p){
+  const prepped=isPrepped(p);
+  const s=surahOf(p);
+  return `<label class="pagechip previewchip ${prepped?'done':''}">
+    <input type="checkbox" data-action="toggle-prep" data-page="${p}" ${prepped?'checked':''}>
+    <span class="num">${pad3(p)}</span><span class="sn">${s[1]}</span>
+  </label>`;
+}
+function currentWeekDayIndex(){
+  return daysBetween(state.currentWeek.startDate,todayISO())+1;
+}
+function pageChip(p,checkable,dayLabel){
+  const done=isMemorized(p);
+  const s=surahOf(p);
+  const isToday=!!(dayLabel&&!done&&dayLabel===currentWeekDayIndex());
+  return `<label class="pagechip ${done?'done':''} ${isToday?'today':''}">
+    ${checkable?`<input type="checkbox" data-action="toggle-page" data-page="${p}" ${done?'checked':''}>`:''}
+    ${dayLabel?`<span class="daytag">Day ${dayLabel}</span>`:''}
+    <span class="num">${pad3(p)}</span><span class="sn">${s[1]}</span>
+  </label>`;
+}
+
+/* ============ RENDER: REVISION CARD ============ */
+function sortByAyah(arr){
+  return arr.slice().sort((a,b)=>{
+    const an=parseInt(a.ayah,10),bn=parseInt(b.ayah,10);
+    const aValid=!isNaN(an),bValid=!isNaN(bn);
+    if(aValid&&bValid)return an-bn;
+    if(aValid)return -1;
+    if(bValid)return 1;
+    return 0;
+  });
+}
+function last30DaysMistakes(page){
+  const today=todayISO();
+  return sortByAyah(state.mistakes.filter(m=>m.page===page&&daysBetween(m.date,today)<=30&&daysBetween(m.date,today)>=0));
+}
+function openMistakesModal(page){
+  const overlay=document.getElementById('mistakesModal');
+  const inner=document.getElementById('mistakesModalInner');
+  const list=last30DaysMistakes(page);
+  const s=surahOf(page);
+  const memorized=isMemorized(page);
+  const inCycle=isInMurajaahCycle(page);
+  const score=pageStrength(page);
+  const band=strengthBand(score);
+  inner.innerHTML=`
+    <h2>Page ${pad3(page)}</h2>
+    <p class="taboftext">${s[1]} · Juz ${juzOf(page)}</p>
+    <div class="statgrid" style="margin:10px 0;">
+      <div class="stat"><div class="n">${memorized?(inCycle?'Cycle':'Review'):'—'}</div><div class="l">Status</div></div>
+      <div class="stat"><div class="n">${score===null?'New':score+'%'}</div><div class="l">Strength</div></div>
+      <div class="stat"><div class="n">${list.length}</div><div class="l">Mistakes · 30d</div></div>
+    </div>
+    <div class="taboftext" style="margin:8px 0 4px;">Mistakes logged in the last 30 days</div>
+    <div style="max-height:320px;overflow-y:auto;margin-bottom:12px;">
+      ${list.length===0?'<span class="emptynote">None in the last 30 days.</span>':list.map(m=>`<div class="mistake-log-item ${m.fixed?'fixed':''}" style="margin-top:6px;"><span>Ayah ${m.ayah||'—'} · ${formatDateDMY(m.date)}${m.note?' — '+escapeHtml(m.note):''}</span><button class="iconbtn" data-modal-delete-id="${m.id}" title="Remove">✕</button></div>`).join('')}
+    </div>
+    <button class="btn ghost" id="mistakesModalClose">Close</button>
+  `;
+  overlay.classList.remove('hidden');
+  document.getElementById('mistakesModalClose').onclick=()=>overlay.classList.add('hidden');
+  inner.querySelectorAll('[data-modal-delete-id]').forEach(b=>{
+    b.onclick=()=>{
+      if(!confirm('Remove this mistake? This restores the page\'s score as if it never happened and cannot be undone.'))return;
+      removeMistake(b.dataset.modalDeleteId);
+      toast('Mistake removed.');
+      openMistakesModal(page); // refresh the modal in place
+      render(); // keep the tab underneath in sync too
+    };
+  });
+}
+function pastMistakesForPage(page,excludeToday){
+  const cycleStart=state.cycle?state.cycle.startDate:null;
+  const list=state.mistakes.filter(m=>m.page===page&&(!cycleStart||m.date>=cycleStart)&&(!excludeToday||m.date!==todayISO()));
+  return sortByAyah(list);
+}
+function ayahButtonsHtml(p){
+  const list=pageAyahList(p);
+  let html='';
+  let lastSurah=null;
+  list.forEach(item=>{
+    if(item.surahNum!==lastSurah){
+      html+=`<div class="ayah-surah-label">${item.surahName}</div>`;
+      lastSurah=item.surahNum;
+    }
+    html+=`<button type="button" class="ayah-btn" data-page="${p}" data-surah="${item.surahNum}" data-surahname="${item.surahName}" data-ayah="${item.ayah}">${item.ayah}</button>`;
+  });
+  return html;
+}
+function revisionCard(p,dayIdx,isExtra,isHifdhReview,showDayMoveButtons){
+  const score=pageStrength(p);
+  const band=strengthBand(score);
+  const s=surahOf(p);
+  const reviewed=isReviewedToday(p);
+  const mistakesToday=sortByAyah(state.mistakes.filter(m=>m.page===p&&m.date===todayISO()));
+  const pastMistakes=isExtra?pastMistakesForPage(p,true):[];
+  const hasRecentMistakes=last30DaysMistakes(p).length>0;
+  // A page with 4+ mistakes this cycle gets a second card on the Review Day list, alongside its
+  // normal day's card — so the page number alone isn't a unique key here. Every id below folds in
+  // the day + extra/base flag too, or the two cards collide and every lookup silently grabs
+  // whichever copy happens to come first in the page, breaking the other one's buttons entirely.
+  const key=`${p}-${dayIdx}-${isExtra?'x':'b'}`;
+  return `
+  <div class="revcard band-${band}" data-page="${p}">
+    <div class="rhead">
+      <div><span class="num">${pad3(p)}</span> <span class="sn">${s[1]} · Juz ${juzOf(p)}</span></div>
+      <span class="badge ${band}">${score===null?'New':score+'%'}</span>
+    </div>
+    ${pastMistakes.length>0?`<div class="mistake-summary">${pastMistakes.map(m=>{const isFixedNow=m.fixed&&m.fixedDate===todayISO();return `<div class="mistake-log-item ${isFixedNow?'fixed':''}"><input type="checkbox" class="fixcheck" data-action="toggle-fixed" data-id="${m.id}" ${isFixedNow?'checked':''} title="Mark fixed"><span>${m.surahName} · Ayah ${m.ayah||'—'}${m.note?' — '+escapeHtml(m.note):''} (${formatDateDMY(m.date)})</span></div>`;}).join('')}</div>`:''}
+    <div class="rev-actions">
+      ${!reviewed?`<button class="btn small ghost" data-action="mark-clean" data-page="${p}" data-day="${dayIdx}">No mistakes</button>`:''}
+      <button class="btn small ghost" data-action="toggle-mistake-form" data-page="${p}">Log a mistake</button>
+      ${mistakesToday.length>0?`<button class="btn small gold" data-action="mark-corrected" data-page="${p}" data-day="${dayIdx}">Mark as corrected</button>`:''}
+      ${showDayMoveButtons&&!isHifdhReview?`<button class="btn small ghost" data-action="move-to-tomorrow" data-page="${p}" data-day="${dayIdx}">Move to tomorrow</button>`:''}
+      ${showDayMoveButtons&&!isHifdhReview&&dayIdx>1?`<button class="btn small ghost" data-action="move-to-yesterday" data-page="${p}" data-day="${dayIdx}">Move to yesterday</button>`:''}
+      ${showDayMoveButtons&&!isHifdhReview&&!isExtra?`<button class="btn small ghost" data-action="move-to-extra" data-page="${p}" data-day="${dayIdx}">Move to Extra Review</button>`:''}
+      ${showDayMoveButtons&&!isHifdhReview&&isExtra?`<button class="btn small ghost" data-action="remove-from-extra" data-page="${p}" data-day="${dayIdx}">Remove from Extra Review</button>`:''}
+      ${(showDayMoveButtons||dayIdx==='sunday')&&!isHifdhReview?`<button class="btn small ghost" data-action="move-back-to-hifdh" data-page="${p}">Move back to Hifdh Review</button>`:''}
+      ${dayIdx==='sunday'?`<button class="btn small gold" data-action="mark-sunday-fixed" data-page="${p}">Mark Fixed</button>`:''}
+      ${hasRecentMistakes?`<button class="btn small ghost" data-action="see-mistakes" data-page="${p}">See Mistakes</button>`:''}
+      ${reviewed?`<span class="badge strong" style="width:100%;text-align:center;">Revised today</span>`:''}
+    </div>
+    ${mistakesToday.length>0?`<div class="mistake-summary">${mistakesToday.map(m=>`<div class="mistake-log-item"><button class="iconbtn spacer">✕</button><span>${m.surahName} · Ayah ${m.ayah||'—'}${m.note?' — '+escapeHtml(m.note):''}</span><button class="iconbtn" data-action="delete-mistake" data-id="${m.id}" data-page="${p}" title="Remove">✕</button></div>`).join('')}</div>`:''}
+    <div class="mistake-form${openMistakeFormPage===key?' open':''}" id="mform-${key}">
+      <div class="taboftext" style="margin-bottom:4px;">Tap every ayah you made a mistake on</div>
+      <div class="ayah-grid" id="ayahgrid-${key}">${ayahButtonsHtml(p)}</div>
+      <div class="row"><input type="text" id="mnote-${key}" placeholder="What went wrong (optional)"></div>
+      <div class="row"><input type="date" id="mdate-${key}" value="${todayISO()}" max="${todayISO()}"></div>
+      <div class="row">
+        <button class="btn small primary" data-action="save-mistake" data-page="${p}" data-day="${dayIdx}">Add mistake(s)</button>
+      </div>
+    </div>
+    ${isHifdhReview?`<div class="rev-actions" style="margin-top:8px;border-top:1px dashed var(--panel-line);padding-top:8px;"><button class="btn small gold" data-action="move-to-murajaah" data-page="${p}">Move to Muraja'ah cycle</button></div>`:''}
+  </div>`;
+}
+function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* ============ RENDER: MEMORIZE TAB ============ */
+function renderMemorize(){
+  ensureCurrentWeek();
+  const weekDone=weekIsComplete();
+  const history=state.prevWeeksHistory.slice().reverse().slice(0,12);
+  if(state.config.hifdhPaused){
+    return `
+    <div class="card">
+      <div class="eyebrow">Status</div>
+      <h2>Hifdh paused</h2>
+      <div class="desc">New memorisation is on hold. Your muraja'ah cycle keeps running as normal — head to Settings to resume when you're ready.</div>
+    </div>
+    ${hifdhReviewCardHtml()}
+    ${prepCardHtml('Coming Up','',"Keep previewing these so they're ready to go the moment you resume.")}
+    ${hifdhWeakAyahHtml()}
+    <div class="card">
+      <div class="eyebrow">History</div>
+      ${history.length===0?`<span class="emptynote">No completed ${isDayPace()?'days':'weeks'} yet.</span>`:history.map(w=>`
+        <div style="padding:8px 0;border-bottom:1px solid var(--panel2);">
+          <div class="taboftext"><b>Pages ${pad3(Math.min(...w.targetPages))}–${pad3(Math.max(...w.targetPages))}</b> · completed ${w.completedDate}</div>
+        </div>`).join('')}
+    </div>
+    `;
+  }
+  return `
+  <div class="card">
+    <div class="eyebrow">Current Target · started ${state.currentWeek.startDate}</div>
+    <h2>${state.currentWeek.targetPages.length}-page batch</h2>
+    <div class="progressbar"><div style="width:${weekProgressPct()}%"></div></div>
+    <div class="pagelist">${state.currentWeek.targetPages.map((p,i)=>pageChip(p,true,isDayPace()?null:i+1)).join('')}</div>
+    ${weekDone?`<button class="btn gold" data-action="advance-week">Start Next ${isDayPace()?"Day":"Week"}'s Pages</button>`:''}
+  </div>
+  ${hifdhReviewCardHtml()}
+  ${prepCardHtml('Coming Up','','')}
+  ${hifdhWeakAyahHtml()}
+  <div class="card">
+    <div class="eyebrow">History</div>
+    ${history.length===0?`<span class="emptynote">No completed ${isDayPace()?'days':'weeks'} yet.</span>`:history.map(w=>`
+      <div style="padding:8px 0;border-bottom:1px solid var(--panel2);">
+        <div class="taboftext"><b>Pages ${pad3(Math.min(...w.targetPages))}–${pad3(Math.max(...w.targetPages))}</b> · completed ${w.completedDate}</div>
+      </div>`).join('')}
+  </div>
+  `;
+}
+function hifdhWeakAyahHtml(){
+  // Same shape as Weak Ayah Review (Muraja'ah tab) but for pages still in Hifdh Review, and
+  // scoped to a streak of consecutive calendar days rather than consecutive cycles.
+  const entries=Object.values(state.hifdhAyahTracking||{}).filter(e=>e.streak>=2&&isMemorized(e.page)&&!isInMurajaahCycle(e.page));
+  const byJuz={};
+  entries.forEach(e=>{
+    const j=juzOf(e.page);
+    if(!byJuz[j])byJuz[j]=[];
+    byJuz[j].push(e);
+  });
+  const juzKeys=Object.keys(byJuz).map(Number).sort((a,b)=>a-b);
+  const sortGroup=(arr)=>arr.slice().sort((a,b)=>{
+    if(a.page!==b.page)return a.page-b.page;
+    const an=parseInt(a.ayah,10),bn=parseInt(b.ayah,10);
+    if(!isNaN(an)&&!isNaN(bn))return an-bn;
+    return 0;
+  });
+  return `<div class="card">
+    <div class="eyebrow">Weak Ayah</div>
+    <div class="desc">Ayahs with a mistake logged on 2 or more days in a row while still in Hifdh Review — these need focused attention before moving on.</div>
+    ${juzKeys.length===0?'<span class="emptynote">None yet — no ayah has recurred on consecutive days.</span>':juzKeys.map(j=>`
+    <div class="eyebrow" style="margin-top:12px;">Juz ${j}</div>
+    ${sortGroup(byJuz[j]).map(e=>`
+    <div class="mistake-log-item" style="margin-top:6px;"><span><b>${pad3(e.page)}</b> ${e.surahName} · Ayah ${e.ayah||'—'} · ${e.streak}× in a row${e.note?' — '+escapeHtml(e.note):''}</span><button class="iconbtn" data-action="fix-hifdh-weak-ayah" data-key="${escapeHtml(ayahKey(e.page,e.surahNum,e.ayah))}" title="Mark fixed">✓</button></div>`).join('')}`).join('')}
+  </div>`;
+}
+
+/* ============ RENDER: REVISE TAB ============ */
+function weakAyahReviewHtml(){
+  const entries=Object.values(state.ayahTracking||{}).filter(e=>e.streak>=2);
+  const byJuz={};
+  entries.forEach(e=>{
+    const j=juzOf(e.page);
+    if(!byJuz[j])byJuz[j]=[];
+    byJuz[j].push(e);
+  });
+  const juzKeys=Object.keys(byJuz).map(Number).sort((a,b)=>a-b);
+  const sortGroup=(arr)=>arr.slice().sort((a,b)=>{
+    if(a.page!==b.page)return a.page-b.page;
+    const an=parseInt(a.ayah,10),bn=parseInt(b.ayah,10);
+    if(!isNaN(an)&&!isNaN(bn))return an-bn;
+    return 0;
+  });
+  return `<div class="card">
+    <div class="eyebrow">Weak Ayah Review</div>
+    <div class="desc">Ayahs with a mistake logged in 2 or more cycles in a row — these need focused, targeted attention.</div>
+    ${juzKeys.length===0?'<span class="emptynote">None yet — no ayah has recurred across consecutive cycles.</span>':juzKeys.map(j=>`
+    <div class="eyebrow" style="margin-top:12px;">Juz ${j}</div>
+    ${sortGroup(byJuz[j]).map(e=>`
+    <div class="mistake-log-item" style="margin-top:6px;"><span><b>${pad3(e.page)}</b> ${e.surahName} · Ayah ${e.ayah||'—'} · ${e.streak}× in a row${e.note?' — '+escapeHtml(e.note):''}</span></div>`).join('')}`).join('')}
+  </div>`;
+}
+function pageRangesText(pages){
+  // Compresses a sorted page list into its contiguous runs, e.g. "Pages 001–010, 050–060" — so a
+  // day made of several separate ranges doesn't misleadingly read as one long span.
+  const sorted=Array.from(new Set(pages)).sort((a,b)=>a-b);
+  const runs=[];
+  sorted.forEach(p=>{
+    const last=runs[runs.length-1];
+    if(last&&p===last[1]+1)last[1]=p;else runs.push([p,p]);
+  });
+  const txt=runs.map(r=>r[0]===r[1]?pad3(r[0]):`${pad3(r[0])}–${pad3(r[1])}`).join(', ');
+  return (sorted.length===1?'Page ':'Pages ')+txt;
+}
+function assignCustomDay(dayIdx,pages,label){
+  const pool=new Set(pagesInMurajaahPool());
+  const filtered=Array.from(new Set(pages.filter(p=>pool.has(p)))).sort((a,b)=>a-b);
+  if(filtered.length===0)return false;
+  if(!state.cycle.days)state.cycle.days={};
+  if(!state.cycle.dayMeta)state.cycle.dayMeta={};
+  state.cycle.days[dayIdx]={base:filtered,extra:[]};
+  state.cycle.dayMeta[dayIdx]=label;
+  saveState();
+  return true;
+}
+let customPendingRanges=[]; // transient: ranges/Surahs queued up for today before you confirm — {from,to,label}
+function customDayPickerHtml(dayIdx){
+  const pool=new Set(pagesInMurajaahPool());
+  const surahOpts=SURAHS.filter(s=>{
+    const range=surahPageRange(s[0]);
+    if(!range)return false;
+    for(let p=range[0];p<=range[1];p++)if(pool.has(p))return true;
+    return false;
+  }).map(s=>`<option value="${s[0]}">${s[1]}</option>`).join('');
+  const chips=customPendingRanges.map((r,i)=>`<span class="chip" style="display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;border:1px solid var(--panel-line);font-size:12px;margin:3px 4px 0 0;">${r.label}<button type="button" class="iconbtn" data-action="remove-custom-range" data-index="${i}" title="Remove">✕</button></span>`).join('');
+  return `<div class="card">
+    <div class="eyebrow">Set Today's Muraja'ah</div>
+    <div class="desc">Nothing's planned for today yet — add as many page ranges and Surahs as you like, then confirm. Once set, it stays fixed unless you move individual pages.</div>
+    <div class="row" style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+      <input type="number" id="customFromPage" min="1" max="${TOTAL_PAGES}" placeholder="From page" style="width:100px;padding:8px;border-radius:8px;border:1px solid var(--panel-line);">
+      <input type="number" id="customToPage" min="1" max="${TOTAL_PAGES}" placeholder="To page" style="width:100px;padding:8px;border-radius:8px;border:1px solid var(--panel-line);">
+      <button class="btn ghost" data-action="add-custom-range">+ Add range</button>
+    </div>
+    <div class="row" style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+      <select id="customSurahSelect" style="flex:1;min-width:140px;padding:8px;border-radius:8px;border:1px solid var(--panel-line);">${surahOpts||'<option value="">No memorised Surahs yet</option>'}</select>
+      <button class="btn ghost" data-action="add-custom-surah">+ Add Surah</button>
+    </div>
+    <div style="margin-top:10px;">${chips||'<span class="emptynote">Nothing added yet.</span>'}</div>
+    <button class="btn primary" data-action="confirm-custom-day" style="margin-top:10px;">Set Today's Muraja'ah</button>
+  </div>`;
+}
+function renderRevise(){
+  ensureCycle();
+  const dayIdx=currentCycleDayIndex();
+  const n=effectiveCycleDays();
+  const totalRevisionPages=new Set();
+  const extraByDay=[];
+  for(let d=1;d<=n;d++){
+    const entry=state.cycle.days[d]||{base:[],extra:[]};
+    entry.base.forEach(p=>totalRevisionPages.add(p));
+    if(entry.extra.length>0)extraByDay.push({day:d,pages:entry.extra});
+  }
+  const sundayPages=state.sundayExtra||[];
+  const totalExtraPages=new Set([...extraByDay.flatMap(e=>e.pages),...sundayPages]);
+  const isCustom=state.config.cycleUnit==='custom';
+  let out=`<div class="card"><div class="eyebrow">Cycle · started ${state.cycle.startDate}</div><h2>Day ${dayIdx}${isCustom?'':' of '+n}</h2>
+  <div class="statgrid">
+    <div class="stat"><div class="n">${totalRevisionPages.size}</div><div class="l">Revision Pages</div></div>
+    <div class="stat"><div class="n">${totalExtraPages.size}</div><div class="l">Extra Review Pages</div></div>
+  </div>
+  <div class="desc">${isCustom?'You choose what to review each day — by page range or by Surah — below. Once a page is on a day it stays there unless you move it. A page with 4+ mistakes this cycle moves to the Review Day card for one consolidated catch-up review. The cycle starts fresh once every memorised page has been covered at least once.':`Pages are covered in mushaf order across the ${n}-day cycle${state.config.hifdhPaused?' (stretched to '+state.config.pausedCycleDays+' days while paused)':''}. A page with 4+ mistakes this cycle moves to the Review Day card below for one consolidated catch-up review, instead of getting a second pass scattered elsewhere in the cycle. The mistake count resets when a new cycle starts, but recurring ayah mistakes are still tracked separately below. Each page is also colour-coded — green (strong), orange (medium), red (weak).`}</div>
+    ${isCustom?'':'<button class="btn ghost small" data-action="open-choose-today" style="margin-top:10px;">Choose Today\'s Revision</button>'}
+  </div>`;
+  const sundayOverride=state.ui.reviseDayCollapsed['sunday'];
+  const sundayCollapsed=sundayOverride!==undefined?sundayOverride:false;
+  out+=`<div class="card">
+    <div class="eyebrow" data-action="toggle-day-collapse" data-day="sunday" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;">
+      <span>Review Day</span>
+      <span style="font-size:11px;">${sundayCollapsed?'Show ▾':'Hide ▴'}</span>
+    </div>
+    <div class="desc">Pages that hit 4+ mistakes this cycle collect here automatically — review all of them together in one sitting.</div>
+    <h2>${sundayPages.length} page${sundayPages.length===1?'':'s'}</h2>
+    ${sundayCollapsed?'':(sundayPages.length===0?'<span class="emptynote">No weak pages yet this cycle.</span>':sundayPages.map(p=>revisionCard(p,'sunday',true,false,false)).join(''))}
+  </div>`;
+  if(isCustom&&!state.cycle.days[dayIdx])out+=customDayPickerHtml(dayIdx);
+  for(let d=1;d<=effectiveCycleDays();d++){
+    const entry=state.cycle.days[d]||{base:[],extra:[]};
+    const pages=[...entry.base,...entry.extra];
+    const isToday=d===dayIdx;
+    const override=state.ui.reviseDayCollapsed[d];
+    const collapsed=override!==undefined?override:!isToday;
+    out+=`<div class="card">
+      ${isToday?`<div class="badge gold" style="display:inline-block;margin-bottom:6px;">TODAY</div>`:''}
+      <div class="eyebrow" data-action="toggle-day-collapse" data-day="${d}" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;">
+        <span>Day ${d}</span>
+        <span style="font-size:11px;">${collapsed?'Show ▾':'Hide ▴'}</span>
+      </div>
+      ${entry.base.length?`<div class="taboftext">${pageRangesText(entry.base)}</div>`:''}
+      <h2>${entry.base.length} page${entry.base.length===1?'':'s'}${entry.extra.length?` · ${entry.extra.length} extra review`:''}</h2>
+      ${collapsed?'':(pages.length===0?'<span class="emptynote">No pages assigned.</span>':
+        `${entry.base.map(p=>revisionCard(p,d,false,false,true)).join('')}${entry.extra.length?`<div class="eyebrow" style="margin-top:14px;">Extra Review</div>${entry.extra.map(p=>revisionCard(p,d,true,false,true)).join('')}`:''}`
+      )}
+    </div>`;
+  }
+  out+=weakAyahReviewHtml();
+  return out;
+}
+
+/* ============ RENDER: PROGRESS TAB ============ */
+function renderProgress(){
+  const memCount=memorizedPagesSorted().length;
+  const pct=Math.round(memCount/TOTAL_PAGES*100);
+  let surahRows='';
+  for(const row of SURAHS){
+    const[num,name,ar,startP]=row;
+    const idx=SURAHS.findIndex(r=>r[0]===num);
+    const next=SURAHS[idx+1];
+    const end= next? (next[3]>startP?next[3]-1:next[3]) : TOTAL_PAGES;
+    const rs=rangeStrength(startP,end);
+    if(rs.status==='not-started')continue;
+    surahRows+=surahRowHtml(row,rs);
+  }
+  let juzRows='';
+  for(let j=1;j<=30;j++){
+    const[start,end]=juzRange(j);
+    const rs=rangeStrength(start,end);
+    juzRows+=juzRowHtml(j,rs);
+  }
+  return `
+  <div class="card">
+    <div class="eyebrow">Overall</div>
+    <h2>${memCount} / ${TOTAL_PAGES} pages · ${pct}%</h2>
+    <div class="progressbar"><div style="width:${pct}%"></div></div>
+  </div>
+  <div class="card">
+    <div class="eyebrow">Surah Strength</div>
+    ${surahRows? `<table class="strengthtable"><tr><th>Surah</th><th>Memorised</th><th>Strength</th></tr>${surahRows}</table>` : '<span class="emptynote">Memorise some pages to see strength data here.</span>'}
+  </div>
+  <div class="card">
+    <div class="eyebrow">Juz Strength</div>
+    <table class="strengthtable"><tr><th>Juz</th><th>Memorised</th><th>Strength</th></tr>${juzRows}</table>
+  </div>
+  <div class="card" style="padding-left:0;padding-right:0;">
+    <div class="eyebrow" style="padding:0 18px;">Mushaf Map</div>
+    <div class="desc" style="padding:0 18px;">Each square is one page, grouped by juz. Dark outline = the current target, gold outline = preparation pages.</div>
+    ${pageGridHtml()}
+    <div class="legend" style="padding:0 18px;">
+      <span><span class="sw" style="background:var(--grey-bg)"></span>Not memorised</span>
+      <span><span class="sw" style="background:var(--grey)"></span>Memorised, not yet revised</span>
+      <span><span class="sw" style="background:var(--green)"></span>Strong</span>
+      <span><span class="sw" style="background:var(--amber)"></span>Medium</span>
+      <span><span class="sw" style="background:var(--clay)"></span>Weak</span>
+    </div>
+  </div>
+  `;
+}
+function surahRowHtml(row,rs){
+  const[num,name,ar]=row;
+  return `<tr data-score="${rs.score===null?-1:rs.score}"><td><b>${num}.</b> ${name}<div class="arname">${ar}</div></td><td>${rs.memCount}/${rs.total}</td><td>${strengthCell(rs)}</td></tr>`;
+}
+function juzRowHtml(j,rs){
+  return `<tr data-score="${rs.score===null?-1:rs.score}"><td>Juz ${j}</td><td>${rs.memCount}/${rs.total}</td><td>${strengthCell(rs,true)}</td></tr>`;
+}
+function strengthCell(rs,requireFull){
+  if(rs.status==='not-started')return `<span class="badge new">Not started</span>`;
+  if(requireFull && rs.memCount<rs.total)return `<span class="badge new">In progress · ${rs.memCount}/${rs.total}</span>`;
+  if(rs.status==='unreviewed')return `<span class="badge new">Memorised</span>`;
+  const band=strengthBand(rs.score);
+  return `<span class="badge ${band}">${rs.score}%</span>`;
+}
+function pageGridHtml(){
+  const targetSet=new Set(state.currentWeek?state.currentWeek.targetPages:[]);
+  const prepSet=new Set(prepPages());
+  let out='<div class="grid604" style="padding:0 8px 0 14px;">';
+  for(let j=1;j<=30;j++){
+    const[start,end]=juzRange(j);
+    out+=`<div class="juzrow"><span class="jl">J${j}</span><div class="cells">`;
+    for(let p=start;p<=end;p++){
+      let cls='cell';
+      if(isMemorized(p)){
+        const score=pageStrength(p);
+        cls+=' '+(score===null?'memnew':strengthBand(score));
+      }
+      if(targetSet.has(p))cls+=' target';
+      else if(prepSet.has(p))cls+=' prep';
+      out+=`<div class="${cls}" data-action="view-page-detail" data-page="${p}" title="Page ${p} · ${surahOf(p)[1]}"></div>`;
+    }
+    out+='</div></div>';
+  }
+  out+='</div>';
+  return out;
+}
+
+/* ============ RENDER: SETTINGS ============ */
+function renderSettings(){
+  const juzButtons=[...Array(30)].map((_,i)=>{
+    const j=i+1;const[start,end]=juzRange(j);
+    const allMem=[...Array(end-start+1)].every((_,k)=>isMemorized(start+k));
+    return `<button class="${allMem?'on':''}" data-action="toggle-juz" data-juz="${j}">Juz ${j}</button>`;
+  }).join('');
+  return `
+  <div class="card">
+    <div class="eyebrow">Plan</div>
+    <div class="settingsrow">
+      <div><label>Pause new memorisation</label><div class="h">Stop getting new pages assigned — only revise what's already memorised</div></div>
+      <button class="btn ${state.config.hifdhPaused?'gold':'ghost'} small" data-action="toggle-pause">${state.config.hifdhPaused?'Paused — Resume':'Pause Hifdh'}</button>
+    </div>
+    <div class="settingsrow">
+      <div><label>Memorisation pace</label><div class="h">Set your new pages per week or per day — one or the other</div></div>
+      <select id="cfgPaceMode">
+        <option value="week" ${!isDayPace()?'selected':''}>Pages per week</option>
+        <option value="day" ${isDayPace()?'selected':''}>Pages per day</option>
+      </select>
+    </div>
+    <div class="settingsrow" id="paceWeekRow" style="${isDayPace()?'opacity:.4;':''}">
+      <div><label>Pages per week</label><div class="h">New pages to memorise each week</div></div>
+      <input type="number" id="cfgPagesPerWeek" min="1" max="30" value="${state.config.pagesPerWeek}" ${isDayPace()?'disabled':''}>
+    </div>
+    <div class="settingsrow" id="paceDayRow" style="${!isDayPace()?'opacity:.4;':''}">
+      <div><label>Pages per day</label><div class="h">New pages to memorise each day — tomorrow's start once today's are done</div></div>
+      <input type="number" id="cfgPagesPerDay" min="1" max="30" value="${state.config.pagesPerDay||1}" ${!isDayPace()?'disabled':''}>
+    </div>
+    <div class="settingsrow">
+      <div><label>Cycle organised by</label><div class="h">Split the Muraja'ah cycle by day count, by whole/half Juz, or choose what to review each day yourself</div></div>
+      <select id="cfgCycleUnit">
+        <option value="pages" ${state.config.cycleUnit==='pages'?'selected':''}>Pages (set day count)</option>
+        <option value="halfJuz" ${state.config.cycleUnit==='halfJuz'?'selected':''}>Half a Juz per day</option>
+        <option value="juz" ${state.config.cycleUnit==='juz'?'selected':''}>1 Juz per day</option>
+        <option value="juz1_5" ${state.config.cycleUnit==='juz1_5'?'selected':''}>1½ Juz per day</option>
+        <option value="juz2" ${state.config.cycleUnit==='juz2'?'selected':''}>2 Juz per day</option>
+        <option value="juz2_5" ${state.config.cycleUnit==='juz2_5'?'selected':''}>2½ Juz per day</option>
+        <option value="juz3" ${state.config.cycleUnit==='juz3'?'selected':''}>3 Juz per day</option>
+        <option value="custom" ${state.config.cycleUnit==='custom'?'selected':''}>Choose daily (page range or Surah)</option>
+      </select>
+    </div>
+    <div class="settingsrow" id="cycleDaysRow" style="${state.config.cycleUnit!=='pages'?'opacity:.4;':''}">
+      <div><label>Revision cycle length</label><div class="h">${state.config.cycleUnit==='pages'?'Days to revise everything memorised once':(state.config.cycleUnit==='custom'?'Not used — you set each day\'s pages yourself in the Muraja\'ah tab':'Set automatically by how many Juz/half-Juz you\'ve memorised')}</div></div>
+      <input type="number" id="cfgCycleDays" min="1" max="30" value="${state.config.revisionCycleDays}" ${state.config.cycleUnit!=='pages'?'disabled':''}>
+    </div>
+    <div class="settingsrow" id="pausedCycleDaysRow" style="${state.config.cycleUnit!=='pages'?'opacity:.4;':''}">
+      <div><label>Paused revision cycle length</label><div class="h">${state.config.cycleUnit==='pages'?'Days to revise everything while hifdh is paused':(state.config.cycleUnit==='custom'?'Not used in daily-choice mode':'Also set automatically while cycle is organised by Juz/half-Juz')}</div></div>
+      <input type="number" id="cfgPausedCycleDays" min="1" max="30" value="${state.config.pausedCycleDays}" ${state.config.cycleUnit!=='pages'?'disabled':''}>
+    </div>
+    <button class="btn primary" data-action="save-config" style="margin-top:10px;">Save</button>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Current Progress Setup</div>
+    <div class="desc">Mark what you've already memorised so the app can pick up from the right place.</div>
+    <div class="row" style="display:flex;gap:8px;align-items:center;margin-top:8px;">
+      <input type="number" id="upToPage" min="1" max="604" placeholder="Page #" style="width:90px;padding:8px;border-radius:8px;border:1px solid var(--panel-line);">
+      <button class="btn primary" data-action="mark-up-to">Mark memorised up to this page</button>
+    </div>
+    <div class="taboftext" style="margin-top:10px;">Or toggle whole juz individually:</div>
+    <div class="juztoggle">${juzButtons}</div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Reset</div>
+    <div class="desc">Targeted resets — these don't touch your memorisation progress, mistake history, or fixed ticks.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+      <button class="btn danger" data-action="reset-revision-cycle">Reset Revision Cycle</button>
+      <button class="btn danger" data-action="reset-baqarah-khatma">Reset Al-Baqarah Khatma</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Weak Ayahs</div>
+    <div class="desc">Clears tracked recurring-mistake streaks. Doesn't touch logged mistakes themselves — just the streak that puts an ayah on a Weak Ayah list.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+      <button class="btn danger" data-action="clear-hifdh-weak-ayahs">Clear Hifdh Weak Ayahs</button>
+      <button class="btn danger" data-action="clear-murajaah-weak-ayahs">Clear Muraja'ah Weak Ayahs</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Erase Revision History</div>
+    <div class="desc">A full wipe, scoped only to pages currently in the Muraja'ah cycle — deletes their logged mistakes, revision history, and Weak Ayah Review streaks, as if never reviewed. Rebuilds the cycle fresh from today. Hifdh Review pages, memorisation progress, and which pages are in the Muraja'ah pool are all untouched.</div>
+    <button class="btn danger" data-action="erase-revision-history" style="margin-top:8px;">Erase All Revision History</button>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Data</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn ghost" data-action="export-data">Export backup</button>
+      <button class="btn ghost" data-action="import-data">Import backup</button>
+      <button class="btn danger" data-action="reset-data">Reset everything</button>
+    </div>
+    <input type="file" id="importFile" style="display:none;" accept="application/json">
+  </div>
+  `;
+}
+
+/* ============ EVENT HANDLING ============ */
+function attachHandlers(){
+  const el=document.getElementById('tabContent');
+  el.querySelectorAll('[data-action="move-back-to-hifdh"]').forEach(b=>b.addEventListener('click',()=>{
+    const pg=Number(b.dataset.page);
+    if(!confirm('Move Page '+pad3(pg)+' back to Hifdh Review? It will be removed from the Muraja\'ah cycle and Review Day.'))return;
+    movePageBackToHifdh(pg);
+    toast('Moved back to Hifdh Review.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="mark-sunday-fixed"]').forEach(b=>b.addEventListener('click',()=>{
+    if(!confirm('Mark Page '+pad3(Number(b.dataset.page))+' as fixed? It will be removed from Review Day.'))return;
+    markReviewDayFixed(Number(b.dataset.page));
+    toast('Marked fixed — removed from Review Day.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="fix-hifdh-weak-ayah"]').forEach(b=>b.addEventListener('click',()=>{
+    if(!confirm('Mark this ayah as fixed? It will be removed from Weak Ayah and its streak reset.'))return;
+    delete (state.hifdhAyahTracking||{})[b.dataset.key];
+    saveState();
+    toast('Marked fixed — removed from Weak Ayah.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="clear-hifdh-weak-ayahs"]').forEach(b=>b.addEventListener('click',()=>{
+    if(!confirm('Clear all Weak Ayah streaks for Hifdh Review pages? This cannot be undone.'))return;
+    state.hifdhAyahTracking={};
+    saveState();
+    toast('Hifdh weak ayahs cleared.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="clear-murajaah-weak-ayahs"]').forEach(b=>b.addEventListener('click',()=>{
+    if(!confirm('Clear all Weak Ayah Review streaks for Muraja\'ah pages? This cannot be undone.'))return;
+    state.ayahTracking={};
+    saveState();
+    toast('Muraja\'ah weak ayahs cleared.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="toggle-page"]').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      togglePageMemorized(Number(cb.dataset.page),cb.checked);
+      render();
+    });
+  });
+  el.querySelectorAll('[data-action="toggle-prep"]').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      togglePrepped(Number(cb.dataset.page),cb.checked);
+      render();
+    });
+  });
+  el.querySelectorAll('[data-action="toggle-baqarah-page"]').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      toggleBaqarahPageRead(Number(cb.dataset.page),cb.checked);
+      render();
+    });
+  });
+  el.querySelectorAll('[data-action="mark-all-baqarah"]').forEach(b=>b.addEventListener('click',()=>{
+    markAllBaqarahToday();
+    toast('Marked all as complete.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="toggle-prep-collapse"]').forEach(b=>b.addEventListener('click',()=>{
+    state.ui.prepCollapsed=!state.ui.prepCollapsed;
+    saveState();
+    render();
+  }));
+  el.querySelectorAll('[data-action="advance-week"]').forEach(b=>b.addEventListener('click',()=>{advanceWeek();toast(isDayPace()?'New pages started.':'New week started — revision cycle refreshed.');render();}));
+  el.querySelectorAll('[data-action="move-to-murajaah"]').forEach(b=>b.addEventListener('click',()=>{
+    if(!confirm('Move this page into the Muraja\'ah cycle? It will start being reviewed on its own schedule instead of daily.'))return;
+    moveToMurajaah(Number(b.dataset.page));
+    toast('Moved into the Muraja\'ah cycle.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="move-to-tomorrow"]').forEach(b=>b.addEventListener('click',()=>{
+    const ok=movePageToTomorrow(Number(b.dataset.page),Number(b.dataset.day));
+    toast(ok?'Moved to tomorrow.':'No next day left in this cycle.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="move-to-yesterday"]').forEach(b=>b.addEventListener('click',()=>{
+    const ok=movePageToYesterday(Number(b.dataset.page),Number(b.dataset.day));
+    toast(ok?'Moved back to yesterday.':'No previous day in this cycle.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="move-to-extra"]').forEach(b=>b.addEventListener('click',()=>{
+    openMoveToExtraDayModal(Number(b.dataset.page),Number(b.dataset.day));
+  }));
+  el.querySelectorAll('[data-action="remove-from-extra"]').forEach(b=>b.addEventListener('click',()=>{
+    if(!confirm('Remove this page from Extra Review on this day?'))return;
+    removeFromExtraReview(Number(b.dataset.page),Number(b.dataset.day));
+    toast('Removed from Extra Review.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="see-mistakes"]').forEach(b=>b.addEventListener('click',()=>{
+    openMistakesModal(Number(b.dataset.page));
+  }));
+  el.querySelectorAll('[data-action="view-page-detail"]').forEach(b=>b.addEventListener('click',()=>{
+    openMistakesModal(Number(b.dataset.page));
+  }));
+  el.querySelectorAll('[data-action="toggle-hifdh-review-collapse"]').forEach(b=>b.addEventListener('click',()=>{
+    state.ui=state.ui||{};
+    state.ui.hifdhReviewCollapsed=!state.ui.hifdhReviewCollapsed;
+    saveState();
+    render();
+  }));
+  el.querySelectorAll('[data-action="toggle-day-collapse"]').forEach(b=>b.addEventListener('click',()=>{
+    const raw=b.dataset.day;
+    const d=raw==='sunday'?raw:Number(raw); // the Review Day card isn't a numbered cycle day
+    const dayIdx=currentCycleDayIndex();
+    const override=state.ui.reviseDayCollapsed[d];
+    const currentlyCollapsed=override!==undefined?override:(d==='sunday'?false:d!==dayIdx);
+    state.ui.reviseDayCollapsed[d]=!currentlyCollapsed;
+    saveState();
+    render();
+  }));
+  el.querySelectorAll('[data-action="open-choose-today"]').forEach(b=>b.addEventListener('click',openChooseTodayModal));
+  const queueCustomRange=(from,to,label)=>{
+    if(from>to)[from,to]=[to,from];
+    const pool=new Set(pagesInMurajaahPool());
+    let any=false;
+    for(let p=from;p<=to;p++)if(pool.has(p)){any=true;break;}
+    if(!any){toast('None of those pages are in your Muraja\'ah pool yet.');return false;}
+    customPendingRanges.push({from,to,label:label||(from===to?`Page ${pad3(from)}`:`Pages ${pad3(from)}–${pad3(to)}`)});
+    return true;
+  };
+  el.querySelectorAll('[data-action="add-custom-range"]').forEach(b=>b.addEventListener('click',()=>{
+    const from=Number(document.getElementById('customFromPage').value),to=Number(document.getElementById('customToPage').value);
+    if(!from||!to){toast('Enter both a from and to page.');return;}
+    if(queueCustomRange(from,to))render();
+  }));
+  el.querySelectorAll('[data-action="add-custom-surah"]').forEach(b=>b.addEventListener('click',()=>{
+    const num=Number(document.getElementById('customSurahSelect').value);
+    if(!num){toast('Choose a Surah first.');return;}
+    const surah=SURAHS.find(x=>x[0]===num);
+    const range=surahPageRange(num);
+    if(queueCustomRange(range[0],range[1],surah[1]))render();
+  }));
+  el.querySelectorAll('[data-action="remove-custom-range"]').forEach(b=>b.addEventListener('click',()=>{
+    customPendingRanges.splice(Number(b.dataset.index),1);
+    render();
+  }));
+  el.querySelectorAll('[data-action="confirm-custom-day"]').forEach(b=>b.addEventListener('click',()=>{
+    // If a range is typed into the boxes but not yet added, include it rather than losing it.
+    const fromEl=document.getElementById('customFromPage'),toEl=document.getElementById('customToPage');
+    const typedFrom=fromEl?Number(fromEl.value):0,typedTo=toEl?Number(toEl.value):0;
+    if(typedFrom&&typedTo&&!queueCustomRange(typedFrom,typedTo))return;
+    if(customPendingRanges.length===0){toast('Add at least one range or Surah first.');return;}
+    const pages=[];
+    customPendingRanges.forEach(r=>{for(let p=r.from;p<=r.to;p++)pages.push(p);});
+    const label=customPendingRanges.map(r=>r.label).join(', ');
+    if(assignCustomDay(currentCycleDayIndex(),pages,label)){
+      customPendingRanges=[];
+      toast('Today\'s Muraja\'ah set.');
+      render();
+    }else toast('None of those pages are in your Muraja\'ah pool yet.');
+  }));
+  el.querySelectorAll('[data-action="toggle-pause"]').forEach(b=>b.addEventListener('click',()=>{
+    state.config.hifdhPaused=!state.config.hifdhPaused;
+    restartCycleNow();
+    saveState();
+    toast(state.config.hifdhPaused?'Hifdh paused — revision now prioritises weak pages.':'Hifdh resumed.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="toggle-juz"]').forEach(b=>b.addEventListener('click',()=>{toggleJuzMemorized(Number(b.dataset.juz));render();}));
+  el.querySelectorAll('[data-action="mark-up-to"]').forEach(b=>b.addEventListener('click',()=>{
+    const n=Number(document.getElementById('upToPage').value);
+    if(n>=1&&n<=TOTAL_PAGES){markPagesMemorizedUpTo(n);toast('Progress updated.');render();}
+  }));
+  const paceSelect=document.getElementById('cfgPaceMode');
+  if(paceSelect)paceSelect.addEventListener('change',()=>{
+    const day=paceSelect.value==='day';
+    document.getElementById('cfgPagesPerWeek').disabled=day;
+    document.getElementById('cfgPagesPerDay').disabled=!day;
+    document.getElementById('paceWeekRow').style.opacity=day?'.4':'1';
+    document.getElementById('paceDayRow').style.opacity=day?'1':'.4';
+  });
+  const cycleUnitSelect=document.getElementById('cfgCycleUnit');
+  if(cycleUnitSelect)cycleUnitSelect.addEventListener('change',()=>{
+    const isPages=cycleUnitSelect.value==='pages';
+    ['cfgCycleDays','cfgPausedCycleDays'].forEach(id=>{
+      const input=document.getElementById(id);
+      if(input)input.disabled=!isPages;
+    });
+    ['cycleDaysRow','pausedCycleDaysRow'].forEach(id=>{
+      const row=document.getElementById(id);
+      if(row)row.style.opacity=isPages?'1':'.4';
+    });
+  });
+  el.querySelectorAll('[data-action="save-config"]').forEach(b=>b.addEventListener('click',()=>{
+    const ppw=Number(document.getElementById('cfgPagesPerWeek').value)||5;
+    const ppd=Number(document.getElementById('cfgPagesPerDay').value)||1;
+    const paceMode=document.getElementById('cfgPaceMode').value==='day'?'day':'week';
+    const cyc=Number(document.getElementById('cfgCycleDays').value)||7;
+    const pausedCyc=Number(document.getElementById('cfgPausedCycleDays').value)||14;
+    const cycleUnit=document.getElementById('cfgCycleUnit').value;
+    const cycleSettingsChanged=(cyc!==state.config.revisionCycleDays)||(pausedCyc!==state.config.pausedCycleDays)||(cycleUnit!==state.config.cycleUnit);
+    state.config.pagesPerWeek=ppw;state.config.pagesPerDay=ppd;state.config.paceMode=paceMode;state.config.revisionCycleDays=cyc;state.config.pausedCycleDays=pausedCyc;state.config.cycleUnit=cycleUnit;state.config.setupDone=true;
+    resizeCurrentWeekTarget(batchSize());
+    if(cycleSettingsChanged){
+      // Changing the cycle length/unit changes the shape of every day, so the old static
+      // assignments can't be preserved — this starts a fresh cycle today (Day 1), the same as a
+      // natural cycle end, rather than reshuffling the existing one.
+      state.cycle=generateCycle(todayISO());
+    }
+    saveState();
+    toast(cycleSettingsChanged?'Settings saved — revision cycle restarted today.':'Settings saved.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="toggle-mistake-form"]').forEach(b=>b.addEventListener('click',()=>{
+    const formEl=b.closest('.revcard').querySelector('.mistake-form');
+    const willOpen=!formEl.classList.contains('open');
+    // Accordion: only one page's ayah grid stays open at a time. Without this, opening a new
+    // page's form while an old one was still (forgotten) open meant the re-render after adding a
+    // mistake could resolve to the wrong one — collapsing the page you're actually working on.
+    document.querySelectorAll('.mistake-form.open').forEach(f=>f.classList.remove('open'));
+    if(willOpen)formEl.classList.add('open');
+  }));
+  el.querySelectorAll('[data-action="save-mistake"]').forEach(b=>b.addEventListener('click',()=>{
+    const p=Number(b.dataset.page);
+    const day=Number(b.dataset.day);
+    // Scoped to this exact card (not looked up by page-number id) so a page with an Extra Review
+    // pass elsewhere on the tab — a second card sharing the same page number — never interferes.
+    const card=b.closest('.revcard');
+    const grid=card.querySelector('.ayah-grid');
+    const selected=grid?Array.from(grid.querySelectorAll('.ayah-btn.selected')):[];
+    if(selected.length===0){toast('Tap at least one ayah first.');return;}
+    const noteInput=card.querySelector('.mistake-form input[type="text"]');
+    const note=noteInput?noteInput.value:'';
+    const dateInput=card.querySelector('.mistake-form input[type="date"]');
+    const logDate=dateInput&&dateInput.value?dateInput.value:todayISO();
+    selected.forEach(btn=>{
+      addMistake(p,Number(btn.dataset.surah),btn.dataset.surahname,btn.dataset.ayah,note,day,logDate);
+    });
+    if(noteInput)noteInput.value='';
+    toast((logDate===todayISO()?`${selected.length} mistake(s) logged — extra practice added to this cycle.`:`${selected.length} mistake(s) logged for ${logDate}.`));
+    render();
+  }));
+  el.querySelectorAll('.ayah-btn').forEach(b=>b.addEventListener('click',(e)=>{
+    e.preventDefault();
+    b.classList.toggle('selected');
+  }));
+  el.querySelectorAll('[data-action="delete-mistake"]').forEach(b=>b.addEventListener('click',(e)=>{
+    e.preventDefault();
+    if(!confirm('Remove this mistake? This restores the page\'s score as if it never happened and cannot be undone.'))return;
+    removeMistake(b.dataset.id);
+    toast('Mistake removed.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="toggle-fixed"]').forEach(cb=>cb.addEventListener('change',()=>{
+    toggleMistakeFixed(cb.dataset.id,cb.checked);
+    render();
+  }));
+  el.querySelectorAll('[data-action="mark-clean"]').forEach(b=>b.addEventListener('click',()=>{
+    markPageRevised(Number(b.dataset.page),Number(b.dataset.day));toast('Marked revised.');render();
+  }));
+  el.querySelectorAll('[data-action="mark-corrected"]').forEach(b=>b.addEventListener('click',()=>{
+    if(!confirm('Mark this page as corrected? This logs a fresh, clean session on top of today\'s mistakes.'))return;
+    markPageCorrected(Number(b.dataset.page),Number(b.dataset.day));toast('Marked as corrected.');render();
+  }));
+  el.querySelectorAll('[data-action="export-data"]').forEach(b=>b.addEventListener('click',()=>{
+    const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='hifdh-companion-backup.json';a.click();
+  }));
+  el.querySelectorAll('[data-action="import-data"]').forEach(b=>b.addEventListener('click',()=>{
+    document.getElementById('importFile').click();
+  }));
+  const importFile=document.getElementById('importFile');
+  if(importFile)importFile.addEventListener('change',e=>{
+    const f=e.target.files[0];if(!f)return;
+    const reader=new FileReader();
+    reader.onload=()=>{try{state=JSON.parse(reader.result);saveState();toast('Backup imported.');render();}catch(err){toast('Invalid file.');}};
+    reader.readAsText(f);
+  });
+  el.querySelectorAll('[data-action="reset-data"]').forEach(b=>b.addEventListener('click',()=>{
+    if(confirm('This will erase all progress permanently. Continue?')){
+      state=defaultState();saveState();render();openSetupModal();
+    }
+  }));
+  el.querySelectorAll('[data-action="reset-revision-cycle"]').forEach(b=>b.addEventListener('click',()=>{
+    if(confirm('This starts a brand new Muraja\'ah cycle today as Day 1, freshly sorted. Your current cycle\'s day assignments and this cycle\'s mistake counts will not be carried over. Continue?')){
+      state.cycle=generateCycle(todayISO());
+      saveState();
+      toast('Revision cycle restarted.');
+      render();
+    }
+  }));
+  el.querySelectorAll('[data-action="erase-revision-history"]').forEach(b=>b.addEventListener('click',()=>{
+    if(!confirm('This permanently deletes every logged mistake, revision history, and Weak Ayah Review streak for pages in the Muraja\'ah cycle — as if none had ever been reviewed. Hifdh Review pages are untouched. This cannot be undone. Continue?'))return;
+    if(!confirm('Are you sure? This is a full wipe of your Muraja\'ah cycle mistake and revision data.'))return;
+    state.mistakes=state.mistakes.filter(m=>!isInMurajaahCycle(m.page));
+    state.reviewLog=state.reviewLog.filter(r=>!isInMurajaahCycle(r.page));
+    const keptAyahTracking={};
+    Object.keys(state.ayahTracking||{}).forEach(key=>{
+      const entry=state.ayahTracking[key];
+      if(entry&&!isInMurajaahCycle(entry.page))keptAyahTracking[key]=entry;
+    });
+    state.ayahTracking=keptAyahTracking;
+    state.cycleSeq=0;
+    state.cycle=generateCycle(todayISO());
+    saveState();
+    toast('Muraja\'ah revision history erased.');
+    render();
+  }));
+  el.querySelectorAll('[data-action="reset-baqarah-khatma"]').forEach(b=>b.addEventListener('click',()=>{
+    if(confirm('This will restart your Al-Baqarah khatma from Day 1 today, clearing which pages you\'ve ticked as read this khatma. Continue?')){
+      state.baqarahKhatma=generateBaqarahKhatma(todayISO());
+      saveState();
+      toast('Al-Baqarah khatma reset.');
+      render();
+    }
+  }));
+}
+
+/* ============ SETUP MODAL ============ */
+function setCycleDayOverride(day){
+  if(!state.cycle)return;
+  state.cycle.dayOverride=day||null;
+  state.cycle.dayOverrideDate=day?todayISO():null;
+  saveState();
+}
+function openMoveToExtraDayModal(page,currentDayIdx){
+  const overlay=document.getElementById('chooseTodayModal');
+  const inner=document.getElementById('chooseTodayModalInner');
+  const n=effectiveCycleDays();
+  const sundayCount=(state.sundayExtra||[]).length;
+  let rows=`<label style="display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--panel2);font-size:12.5px;cursor:pointer;">
+      <input type="radio" name="moveExtraDay" value="sunday">
+      <span style="flex:1;">Review Day</span>
+      <span class="taboftext">${sundayCount} page${sundayCount===1?'':'s'}</span>
+    </label>`;
+  for(let d=1;d<=n;d++){
+    const entry=state.cycle.days[d]||{base:[],extra:[]};
+    const count=entry.base.length+entry.extra.length;
+    const label=state.cycle.dayMeta&&state.cycle.dayMeta[d]?' · '+state.cycle.dayMeta[d]:'';
+    rows+=`<label style="display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--panel2);font-size:12.5px;cursor:pointer;">
+      <input type="radio" name="moveExtraDay" value="${d}" ${d===currentDayIdx?'checked':''}>
+      <span style="flex:1;">Day ${d}${label}</span>
+      <span class="taboftext">${count} page${count===1?'':'s'}</span>
+    </label>`;
+  }
+  inner.innerHTML=`
+    <h2>Move to Extra Review</h2>
+    <p class="taboftext">Choose Review Day to add Page ${pad3(page)} there as a second, duplicate card — its current day keeps its own card untouched. Choosing a numbered day instead genuinely moves it there, removing it from wherever it currently sits.</p>
+    <div style="max-height:320px;overflow-y:auto;margin:12px 0;">${rows}</div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn ghost" id="moveExtraCancel">Cancel</button>
+      <button class="btn gold" id="moveExtraSave">Move</button>
+    </div>
+  `;
+  overlay.classList.remove('hidden');
+  document.getElementById('moveExtraCancel').onclick=()=>overlay.classList.add('hidden');
+  document.getElementById('moveExtraSave').onclick=()=>{
+    const picked=inner.querySelector('input[name="moveExtraDay"]:checked');
+    overlay.classList.add('hidden');
+    if(!picked)return;
+    if(picked.value==='sunday'){
+      addToReviewDayManually(page);
+      toast('Added to Review Day — its original card stays where it is.');
+    }else{
+      const d=Number(picked.value);
+      moveToExtraReview(page,d);
+      toast('Moved to Extra Review on Day '+d+'.');
+    }
+    render();
+  };
+}
+function openChooseTodayModal(){
+  const overlay=document.getElementById('chooseTodayModal');
+  const inner=document.getElementById('chooseTodayModalInner');
+  const n=effectiveCycleDays();
+  const autoDayIdx=(()=>{const elapsed=daysBetween(state.cycle.startDate,todayISO());return Math.min(n,elapsed+1);})();
+  const currentDayIdx=currentCycleDayIndex();
+  let rows='';
+  for(let d=1;d<=n;d++){
+    const entry=state.cycle.days[d]||{base:[],extra:[]};
+    const count=entry.base.length+entry.extra.length;
+    const label=state.cycle.dayMeta&&state.cycle.dayMeta[d]?' · '+state.cycle.dayMeta[d]:'';
+    const isAuto=d===autoDayIdx;
+    const isSelected=d===currentDayIdx;
+    rows+=`<label style="display:flex;align-items:center;gap:8px;padding:8px 4px;border-bottom:1px solid var(--panel2);font-size:12.5px;cursor:pointer;">
+      <input type="radio" name="chooseTodayDay" value="${d}" ${isSelected?'checked':''}>
+      <span style="flex:1;">Day ${d}${label}${isAuto?' <span class="taboftext">(today by date)</span>':''}</span>
+      <span class="taboftext">${count} page${count===1?'':'s'}</span>
+    </label>`;
+  }
+  inner.innerHTML=`
+    <h2>Choose Today's Revision</h2>
+    <p class="taboftext">Pick which day of your Muraja'ah cycle you want to treat as "today" — useful if you got ahead or fell behind. This doesn't change any page assignments, just which day's list you're currently working through.</p>
+    <div style="max-height:320px;overflow-y:auto;margin:12px 0;">${rows||'<span class="emptynote">No cycle days yet.</span>'}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn ghost" id="chooseTodayCancel">Cancel</button>
+      <button class="btn ghost" id="chooseTodayAuto">Use Today's Actual Date</button>
+      <button class="btn gold" id="chooseTodaySave">Save</button>
+    </div>
+  `;
+  overlay.classList.remove('hidden');
+  document.getElementById('chooseTodayCancel').onclick=()=>overlay.classList.add('hidden');
+  document.getElementById('chooseTodayAuto').onclick=()=>{
+    setCycleDayOverride(null);
+    overlay.classList.add('hidden');
+    toast('Back to today\'s actual date.');
+    render();
+  };
+  document.getElementById('chooseTodaySave').onclick=()=>{
+    const picked=inner.querySelector('input[name="chooseTodayDay"]:checked');
+    if(!picked){overlay.classList.add('hidden');return;}
+    const d=Number(picked.value);
+    setCycleDayOverride(d===autoDayIdx?null:d);
+    overlay.classList.add('hidden');
+    toast(`Now showing Day ${d} as today.`);
+    render();
+  };
+}
+function openSetupModal(){
+  const overlay=document.getElementById('setupModal');
+  const inner=document.getElementById('setupModalInner');
+  inner.innerHTML=`
+    <h2>Welcome — let's set your starting point</h2>
+    <p class="taboftext">Enter how far you've already memorised (Mushaf page number), or skip and set it later from Settings.</p>
+    <div style="display:flex;gap:8px;margin:14px 0;">
+      <input type="number" id="setupUpToPage" min="0" max="604" placeholder="e.g. 151 (through Al-A'raf)" style="flex:1;padding:9px;border-radius:8px;border:1px solid var(--panel-line);">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button class="btn primary" id="setupSkip">Skip for now</button>
+      <button class="btn gold" id="setupSave">Save & Start</button>
+    </div>
+  `;
+  overlay.classList.remove('hidden');
+  document.getElementById('setupSkip').onclick=()=>{state.config.setupDone=true;saveState();overlay.classList.add('hidden');render();};
+  document.getElementById('setupSave').onclick=()=>{
+    const n=Number(document.getElementById('setupUpToPage').value);
+    if(n>0)markPagesMemorizedUpTo(n);
+    state.config.setupDone=true;
+    state.currentWeek.targetPages=nextUnmemorizedPages(batchSize());
+    restartCycleNow();
+    saveState();overlay.classList.add('hidden');render();
+  };
+}
+
+init();
+</script>
+</body>
+</html>
